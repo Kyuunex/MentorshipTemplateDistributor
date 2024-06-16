@@ -1,0 +1,5 @@
+discord.py[voice]==2.3.2
+psutil
+aiosqlite
+python-dateutil
+appdirs
