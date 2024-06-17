@@ -46,7 +46,7 @@ beatmap template distribution.
 ## Contest Tools
 - Export participant data: `!export_participants 26`
   - This number is the Cycle ID
-    result:
+  - result:
     ```csv
     cycle_id,discord_id,discord_username,server_nickname,gamemode_requested,timestamp_requested,timestamp_submitted,status
     ```
