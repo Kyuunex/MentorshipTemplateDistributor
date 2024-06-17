@@ -5,7 +5,7 @@ beatmap template distribution.
 # Project incomplete, do not use yet
 
 ## Contest Setup
-- Set the server where all participants are in `!set_contest_guild 205772326678167552`
+- Set the server where all participants are in `!set_representing_server 205772326678167552`
 - Set Cycle ID `!set_cycle_id 26`
 - Set contest start time (UTC): `!set_start 2024-06-22 00:00:00`
   - Or Set contest start time (UNIX): `!set_start_unix 1719014400`
