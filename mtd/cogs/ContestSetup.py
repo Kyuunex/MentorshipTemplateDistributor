@@ -143,10 +143,15 @@ class ContestSetup(commands.Cog):
             await ctx.send("Gamemode must be one of: osu, taiko, mania, ctb")
             return
 
-        guild_id = ctx.guild.id
+        guild = ctx.guild
+        if not guild:
+            if not self.bot.representing_guild:
+                await ctx.send("Please type this in a guild or set a representing_guild")
+                return
+            guild = self.bot.representing_guild
 
-        await self.bot.db.execute("DELETE FROM roles WHERE guild_id = ? AND role_id = ?", [guild_id, int(role_id)])
-        await self.bot.db.execute("INSERT INTO roles VALUES (?, ?, ?)", [setting + "_participant", guild_id, int(role_id)])
+        await self.bot.db.execute("DELETE FROM roles WHERE guild_id = ? AND role_id = ?", [guild.id, int(role_id)])
+        await self.bot.db.execute("INSERT INTO roles VALUES (?, ?, ?)", [setting + "_participant", guild.id, int(role_id)])
         await self.bot.db.commit()
 
         await ctx.send(f"Added role {role_id} to eligible roles.")
