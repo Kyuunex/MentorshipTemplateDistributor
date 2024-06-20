@@ -16,7 +16,7 @@ class Participation(commands.Cog):
         member = guild.get_member(int(user.id))
 
         async with self.bot.db.execute("SELECT role_id FROM eligibility_roles WHERE gamemode = ?",
-                                       [{gamemode}]) as cursor:
+                                       [gamemode]) as cursor:
             eligibility_roles = await cursor.fetchall()
 
         for eligible_role in eligibility_roles:
