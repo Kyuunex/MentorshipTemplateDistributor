@@ -140,6 +140,7 @@ class ContestSetup(commands.Cog):
         setting = gamemode.strip()
         if not setting in ["osu", "taiko", "mania", "ctb"]:
             await ctx.send("Gamemode must be one of: osu, taiko, mania, ctb")
+            return
 
         guild_id = ctx.guild.id
 
