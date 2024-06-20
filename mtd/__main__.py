@@ -20,6 +20,9 @@ else:
 initial_extensions = [
     "mtd.cogs.BotManagement",
     "mtd.cogs.ContestSetup",
+    "mtd.cogs.ContestTools",
+    "mtd.cogs.DMManagement",
+    "mtd.cogs.Participation",
 ]
 
 intents = discord.Intents.default()
