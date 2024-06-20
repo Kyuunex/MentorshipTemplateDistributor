@@ -13,7 +13,8 @@ beatmap template distribution.
   - Or Set contest end time (UNIX): `!set_end_unix 1719187199`
 - Set duration (in minutes): `!set_duration osu 180` `!set_duration taiko 120` `!set_duration mania 150` `!set_duration ctb 240`
   - Gamemode exact keywords: `osu`, `taiko`, `mania`, `ctb`
-- Make user ineligible to participate (formers who are judges, etc): `!add_ineligible 346755297714372609`
+- Make user ineligible to participate (formers who are judges, etc): `!add_ineligible osu 346755297714372609`
+  - Gamemode exact keywords: `osu`, `taiko`, `mania`, `ctb`
 - Add eligible roles: `!add_eligible_role osu 335116624019324928`
   - Gamemode exact keywords: `osu`, `taiko`, `mania`, `ctb`
   - I went ahead and grabbed all the Role IDs from the mentorship server:

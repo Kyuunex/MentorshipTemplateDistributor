@@ -111,7 +111,7 @@ class ContestSetup(commands.Cog):
     @commands.command(name="add_ineligible", brief="Make user ineligible to participate")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
-    async def add_ineligible(self, ctx, user_id):
+    async def add_ineligible(self, ctx, gamemode, user_id):
         """
         Set discord users that are not allowed to participate in the contest.
         """
@@ -120,11 +120,23 @@ class ContestSetup(commands.Cog):
             await ctx.send("User ID must be a number")
             return
 
-        await self.bot.db.execute("INSERT INTO ineligible_users VALUES (?) ON CONFLICT (user_id) DO NOTHING",
-                                  [int(user_id)])
+        if not gamemode in ["osu", "taiko", "mania", "ctb"]:
+            await ctx.send("Gamemode must be one of: osu, taiko, mania, ctb")
+            return
+
+        async with self.bot.db.execute("SELECT user_id FROM ineligible_users WHERE user_id = ? AND gamemode = ?",
+                                       [int(user_id), str(gamemode)]) as cursor:
+            is_ineligible = await cursor.fetchone()
+
+        if is_ineligible:
+            await ctx.send(f"This user is already ineligible to participate in {gamemode} gamemode.")
+            return
+
+        await self.bot.db.execute("INSERT INTO ineligible_users VALUES (?, ?)",
+                                  [int(user_id), str(gamemode)])
         await self.bot.db.commit()
 
-        await ctx.send(f"Added user {user_id} to ineligible users.")
+        await ctx.send(f"Added user {user_id} to {gamemode} ineligible users.")
 
     @commands.command(name="add_eligible_role", brief="Add a role that may participate in the contest")
     @commands.check(permissions.is_admin)
@@ -172,7 +184,8 @@ async def setup(bot):
         """)
     await bot.db.execute("""
         CREATE TABLE IF NOT EXISTS "ineligible_users" (
-            "user_id"   INTEGER UNIQUE NOT NULL
+            "user_id"   INTEGER NOT NULL,
+            "gamemode"   TEXT NOT NULL
         )
         """)
     await bot.db.commit()
