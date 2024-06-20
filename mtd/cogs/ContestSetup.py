@@ -120,7 +120,8 @@ class ContestSetup(commands.Cog):
             await ctx.send("User ID must be a number")
             return
 
-        await self.bot.db.execute("INSERT INTO ineligible_users VALUES (?) ON CONFLICT (user_id) DO NOTHING", [user_id])
+        await self.bot.db.execute("INSERT INTO ineligible_users VALUES (?) ON CONFLICT (user_id) DO NOTHING",
+                                  [int(user_id)])
         await self.bot.db.commit()
 
         await ctx.send(f"Added user {user_id} to ineligible users.")
@@ -144,8 +145,8 @@ class ContestSetup(commands.Cog):
 
         guild_id = ctx.guild.id
 
-        await self.bot.db.execute("DELETE FROM roles WHERE guild_id = ? AND role_id = ?", [guild_id, role_id])
-        await self.bot.db.execute("INSERT INTO roles VALUES (?, ?, ?)", [setting + "_participant", guild_id, role_id])
+        await self.bot.db.execute("DELETE FROM roles WHERE guild_id = ? AND role_id = ?", [guild_id, int(role_id)])
+        await self.bot.db.execute("INSERT INTO roles VALUES (?, ?, ?)", [setting + "_participant", guild_id, int(role_id)])
         await self.bot.db.commit()
 
         await ctx.send(f"Added role {role_id} to eligible roles.")
