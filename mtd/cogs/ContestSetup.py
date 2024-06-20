@@ -154,19 +154,11 @@ class ContestSetup(commands.Cog):
             await ctx.send("Gamemode must be one of: osu, taiko, mania, ctb")
             return
 
-        guild = ctx.guild
-        if not guild:
-            if not self.bot.representing_guild:
-                await ctx.send("Please type this in a guild or set a representing_guild")
-                return
-            guild = self.bot.representing_guild
-
-        await self.bot.db.execute("DELETE FROM roles WHERE guild_id = ? AND role_id = ?", [guild.id, int(role_id)])
-        await self.bot.db.execute("INSERT INTO roles VALUES (?, ?, ?)",
-                                  [gamemode + "_participant", guild.id, int(role_id)])
+        await self.bot.db.execute("DELETE FROM eligibility_roles WHERE role_id = ?", [int(role_id)])
+        await self.bot.db.execute("INSERT INTO eligibility_roles VALUES (?, ?)", [int(role_id), gamemode])
         await self.bot.db.commit()
 
-        await ctx.send(f"Added role {role_id} to eligible roles.")
+        await ctx.send(f"Added role {role_id} to {gamemode} eligible roles.")
 
 
 async def setup(bot):
@@ -185,6 +177,12 @@ async def setup(bot):
     await bot.db.execute("""
         CREATE TABLE IF NOT EXISTS "ineligible_users" (
             "user_id"   INTEGER NOT NULL,
+            "gamemode"   TEXT NOT NULL
+        )
+        """)
+    await bot.db.execute("""
+        CREATE TABLE IF NOT EXISTS "eligibility_roles" (
+            "role_id"   INTEGER NOT NULL,
             "gamemode"   TEXT NOT NULL
         )
         """)
