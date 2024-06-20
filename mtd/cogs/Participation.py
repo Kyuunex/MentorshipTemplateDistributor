@@ -1,6 +1,7 @@
 from discord.ext import commands
 from mtd.modules import permissions
 import discord
+import time
 
 
 class Participation(commands.Cog):
@@ -23,6 +24,21 @@ class Participation(commands.Cog):
         for eligible_role in eligibility_roles:
             if member.get_role(int(eligible_role[0])):
                 return True
+
+        return False
+
+    async def time_check(self):
+        async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["start_time"]) as cursor:
+            start_time = await cursor.fetchone()
+
+        async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["end_time"]) as cursor:
+            end_time = await cursor.fetchone()
+
+        if not start_time or not end_time:
+            return False
+
+        if int(start_time[0]) < time.time() < int(end_time[0]):
+            return True
 
         return False
 
@@ -54,6 +70,9 @@ class Participation(commands.Cog):
             embed.set_image(url="https://i.imgur.com/HNxQJVx.jpeg")
         else:
             embed.set_image(url="https://i.imgur.com/6w66FUv.png")
+
+        if not await self.time_check():
+            embed.description += f"\n\nIt's either too early or too late to participate in this contest."
 
         embed.set_author(
             name=str(ctx.author.display_name),
