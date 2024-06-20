@@ -1,5 +1,6 @@
 from discord.ext import commands
 from mtd.modules import permissions
+import discord
 
 
 class Participation(commands.Cog):
@@ -35,11 +36,30 @@ class Participation(commands.Cog):
                 await ctx.send("Bot misconfigured")
                 return
 
+        embed = discord.Embed(
+            description="Eligibility check",
+            color=0xFFFFFF
+        )
+
+        eligibility_count = 0
+
         for gamemode in ["osu", "taiko", "mania", "ctb"]:
             if not await self.eligibility_check(ctx.author, guild, gamemode):
-                await ctx.send(f"You are not eligible to participate in this contest with gamemode: {gamemode}")
+                embed.add_field(name=gamemode, value="Not eligible")
             else:
-                await ctx.send(f"You are eligible to participate in this contest with gamemode: {gamemode}")
+                embed.add_field(name=gamemode, value="Eligible")
+                eligibility_count += 1
+
+        if eligibility_count == 0:
+            embed.set_image(url="https://i.imgur.com/HNxQJVx.jpeg")
+        else:
+            embed.set_image(url="https://i.imgur.com/6w66FUv.png")
+
+        embed.set_author(
+            name=str(ctx.author.display_name),
+            icon_url=ctx.author.display_avatar.url
+        )
+        await ctx.send(embed=embed)
 
 
 async def setup(bot):
