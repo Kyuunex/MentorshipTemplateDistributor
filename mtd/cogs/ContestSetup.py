@@ -138,8 +138,7 @@ class ContestSetup(commands.Cog):
             await ctx.send("Role ID must be a number")
             return
 
-        setting = gamemode.strip()
-        if not setting in ["osu", "taiko", "mania", "ctb"]:
+        if not gamemode in ["osu", "taiko", "mania", "ctb"]:
             await ctx.send("Gamemode must be one of: osu, taiko, mania, ctb")
             return
 
@@ -151,7 +150,8 @@ class ContestSetup(commands.Cog):
             guild = self.bot.representing_guild
 
         await self.bot.db.execute("DELETE FROM roles WHERE guild_id = ? AND role_id = ?", [guild.id, int(role_id)])
-        await self.bot.db.execute("INSERT INTO roles VALUES (?, ?, ?)", [setting + "_participant", guild.id, int(role_id)])
+        await self.bot.db.execute("INSERT INTO roles VALUES (?, ?, ?)",
+                                  [gamemode + "_participant", guild.id, int(role_id)])
         await self.bot.db.commit()
 
         await ctx.send(f"Added role {role_id} to eligible roles.")
