@@ -156,6 +156,7 @@ class ContestSetup(commands.Cog):
 
         await ctx.send(f"Added role {role_id} to eligible roles.")
 
+
 async def setup(bot):
     await bot.db.execute("""
         CREATE TABLE IF NOT EXISTS "contest_config" (
