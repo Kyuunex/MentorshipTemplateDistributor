@@ -160,6 +160,28 @@ class ContestSetup(commands.Cog):
 
         await ctx.send(f"Added role {role_id} to {gamemode} eligible roles.")
 
+    @commands.command(name="set_duration", brief="Set duration (in minutes)")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def set_duration(self, ctx, gamemode, duration):
+        """
+        Set duration (in minutes)
+        """
+
+        if not duration.isdigit():
+            await ctx.send("duration must be a number")
+            return
+
+        if not gamemode in ["osu", "taiko", "mania", "ctb"]:
+            await ctx.send("Gamemode must be one of: osu, taiko, mania, ctb")
+            return
+
+        await self.bot.db.execute("DELETE FROM durations WHERE gamemode = ?", [int(gamemode)])
+        await self.bot.db.execute("INSERT INTO durations VALUES (?, ?)", [int(duration), gamemode])
+        await self.bot.db.commit()
+
+        await ctx.send(f"Added duration of {duration} minutes to {gamemode}.")
+
 
 async def setup(bot):
     await bot.db.execute("""
@@ -183,6 +205,12 @@ async def setup(bot):
     await bot.db.execute("""
         CREATE TABLE IF NOT EXISTS "eligibility_roles" (
             "role_id"   INTEGER NOT NULL,
+            "gamemode"   TEXT NOT NULL
+        )
+        """)
+    await bot.db.execute("""
+        CREATE TABLE IF NOT EXISTS "durations" (
+            "duration"   INTEGER NOT NULL,
             "gamemode"   TEXT NOT NULL
         )
         """)
