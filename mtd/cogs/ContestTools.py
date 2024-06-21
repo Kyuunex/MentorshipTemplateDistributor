@@ -42,7 +42,7 @@ class ContestTools(commands.Cog):
             await ctx.send("Please set a cycle ID first.")
             return
 
-        await self.bot.db.execute("DELETE FROM participation WHERE user_id = ? AND cycle_id",
+        await self.bot.db.execute("DELETE FROM participation WHERE user_id = ? AND cycle_id = ?",
                                   [int(user_id), int(cycle_id[0])])
         await self.bot.db.commit()
 
