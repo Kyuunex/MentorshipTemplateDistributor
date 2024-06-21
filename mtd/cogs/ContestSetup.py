@@ -55,6 +55,10 @@ class ContestSetup(commands.Cog):
         Example input: 1719014400
         """
 
+        if not unix_timestamp.isdigit():
+            await ctx.send("UNIX timestamp must be a number")
+            return
+
         await self.bot.db.execute("DELETE FROM contest_config_int WHERE key = ?", ["start_time"])
         await self.bot.db.execute("INSERT INTO contest_config_int VALUES (?, ?)", ["start_time", int(unix_timestamp)])
 
@@ -91,6 +95,10 @@ class ContestSetup(commands.Cog):
         Example input: 1719187199
         """
 
+        if not unix_timestamp.isdigit():
+            await ctx.send("UNIX timestamp must be a number")
+            return
+        
         await self.bot.db.execute("DELETE FROM contest_config_int WHERE key = ?", ["end_time"])
         await self.bot.db.execute("INSERT INTO contest_config_int VALUES (?, ?)", ["end_time", int(unix_timestamp)])
 
