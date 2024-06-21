@@ -72,7 +72,7 @@ class ContestSetup(commands.Cog):
     async def set_end(self, ctx, *, timestamp_str):
         """
         Set contest end time (UTC)
-        Example input: 2024-06-23 29:59:59
+        Example input: 2024-06-23 23:59:59
         """
 
         await self.bot.db.execute("DELETE FROM contest_config_int WHERE key = ?", ["end_time"])

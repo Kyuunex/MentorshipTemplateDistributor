@@ -9,7 +9,7 @@ beatmap template distribution.
 - Set Cycle ID `!set_cycle_id 26`
 - Set contest start time (UTC): `!set_start 2024-06-22 00:00:00`
   - Or Set contest start time (UNIX): `!set_start_unix 1719014400`
-- Set contest end time (UTC): `!set_end 2024-06-23 29:59:59`
+- Set contest end time (UTC): `!set_end 2024-06-23 23:59:59`
   - Or Set contest end time (UNIX): `!set_end_unix 1719187199`
 - Set duration (in minutes): `!set_duration osu 180` `!set_duration taiko 120` `!set_duration mania 150` `!set_duration ctb 240`
   - Gamemode exact keywords: `osu`, `taiko`, `mania`, `ctb`
