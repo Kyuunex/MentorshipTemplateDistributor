@@ -121,7 +121,7 @@ class Participation(commands.Cog):
             return
 
         if not await self.eligibility_check(ctx.author, guild, gamemode):
-            await ctx.send(f"You are not eligible to participate in this contest with gamemode: {gamemode}."
+            await ctx.send(f"You are not eligible to participate in this contest with gamemode: {gamemode}. "
                            f"Use the !check_eligibility command to see which gamemodes you are eligible to "
                            f"participate in.")
             return
