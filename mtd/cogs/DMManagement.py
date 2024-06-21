@@ -136,6 +136,8 @@ class DMManagement(commands.Cog):
         Set this channel as a destination to DMs the bot receives
         """
 
+        await self.bot.db.execute("DELETE FROM channels WHERE setting = ? AND guild_id = ? AND channel_id = ?", 
+                                  ["dm_monitor", int(ctx.guild.id), int(ctx.channel.id)])
         await self.bot.db.execute("INSERT INTO channels VALUES (?, ?, ?)",
                                   ["dm_monitor", int(ctx.guild.id), int(ctx.channel.id)])
         await self.bot.db.commit()
