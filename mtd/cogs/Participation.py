@@ -153,7 +153,7 @@ class Participation(commands.Cog):
         async with self.bot.db.execute(
                 "SELECT timestamp_requested, timestamp_timeslot_deadline, timestamp_submitted FROM participation "
                 "WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
-                [int(member.id), int(cycle_id), str(gamemode)]
+                [int(member.id), int(cycle_id[0]), str(gamemode)]
         ) as cursor:
             has_already_participated = await cursor.fetchone()
 
@@ -179,7 +179,7 @@ class Participation(commands.Cog):
             [
                 int(cycle_id[0]),
                 int(member.id),
-                str(member.username),
+                str(member.name),
                 str(member.display_name),
                 str(gamemode),
                 timestamp_requested,
@@ -199,8 +199,7 @@ class Participation(commands.Cog):
         # source https://www.freepik.com/free-vector/simple-vibing-cat-square-meme_58459053.htm
         embed.set_image(url="https://i.imgur.com/UMhMLui.jpeg")
 
-        if not await self.time_check():
-            embed.description += f"\n\n** Attachment: {attachment[0]} **"
+        embed.description += f"\n\n** Attachment: {attachment[0]} **"
 
         embed.add_field(name="Cycle", value=int(cycle_id[0]))
         embed.add_field(name="Gamemode", value=gamemode)
@@ -256,7 +255,7 @@ class Participation(commands.Cog):
 
         await self.bot.db.execute(
             "INSERT INTO submissions VALUES (?, ?, ?, ?, ?, ?)",
-            [int(cycle_id[0]), int(ctx.author.id), str(participation_data[0]), timestamp_submitted, contents])
+            [int(cycle_id[0]), int(ctx.author.id), str(participation_data[0]), timestamp_submitted, contents, "VALID"])
         await self.bot.db.commit()
 
         await ctx.send(f"Submitted")
