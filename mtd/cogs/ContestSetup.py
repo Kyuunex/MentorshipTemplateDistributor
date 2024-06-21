@@ -27,6 +27,22 @@ class ContestSetup(commands.Cog):
 
         await ctx.send(f"Contest start time is set to <t:{unix_timestamp}:F>")
 
+    @commands.command(name="set_start_unix", brief="Set contest start time (UNIX)")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def set_start_unix(self, ctx, unix_timestamp):
+        """
+        Set contest start time (UNIX)
+        Example input: 1719014400
+        """
+
+        await self.bot.db.execute("DELETE FROM contest_config_int WHERE key = ?", ["start_time"])
+        await self.bot.db.execute("INSERT INTO contest_config_int VALUES (?, ?)", ["start_time", unix_timestamp])
+
+        await self.bot.db.commit()
+
+        await ctx.send(f"Contest start time is set to <t:{unix_timestamp}:F>")
+
     @commands.command(name="set_end", brief="Set contest end time (UTC)")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
@@ -41,6 +57,22 @@ class ContestSetup(commands.Cog):
         input_datetime = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
         input_datetime = input_datetime.replace(tzinfo=timezone.utc)
         unix_timestamp = int(input_datetime.timestamp())
+        await self.bot.db.execute("INSERT INTO contest_config_int VALUES (?, ?)", ["end_time", unix_timestamp])
+
+        await self.bot.db.commit()
+
+        await ctx.send(f"Contest start time is set to <t:{unix_timestamp}:F>")
+
+    @commands.command(name="set_end_unix", brief="Set contest end time (UNIX)")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def set_end_unix(self, ctx, unix_timestamp):
+        """
+        Set contest end time (UNIX)
+        Example input: 1719187199
+        """
+
+        await self.bot.db.execute("DELETE FROM contest_config_int WHERE key = ?", ["end_time"])
         await self.bot.db.execute("INSERT INTO contest_config_int VALUES (?, ?)", ["end_time", unix_timestamp])
 
         await self.bot.db.commit()
