@@ -216,6 +216,51 @@ class Participation(commands.Cog):
 
         # TODO: add a reminder
 
+    @commands.command(name="submit", brief="Submit entry, MUST attach a .osu file to the message")
+    @commands.check(permissions.is_not_ignored)
+    async def submit(self, ctx):
+        if ctx.guild:
+            await ctx.send("This command can only be used in a DM")
+            return
+
+        guild = self.bot.representing_guild
+        if not guild:
+            await ctx.send("Bot misconfigured")
+            return
+
+        async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
+            cycle_id = await cursor.fetchone()
+
+        async with self.bot.db.execute(
+                "SELECT gamemode, timestamp_grace_deadline FROM participation WHERE user_id = ? AND cycle_id = ?",
+                [int(ctx.author.id), int(cycle_id[0])]) as cursor:
+            participation_data = await cursor.fetchone()
+
+        if not participation_data:
+            await ctx.send(f"You have not signed up for the contest, thus you can't submit an entry.")
+            return
+
+        timestamp_submitted = int(time.time())
+        # check deadline
+
+        if timestamp_submitted > int(participation_data[1]):
+            await ctx.send(f"Deadline has passed. You can not submit anymore. "
+                           f"You had until <t:{participation_data[1]}:f> to submit your entry.")
+            return
+
+        if ctx.message.attachments:
+            contents = await ctx.message.attachments[0].read()
+        else:
+            await ctx.send(f"Please attach your entry, type !submit, and send")
+            return
+
+        await self.bot.db.execute(
+            "INSERT INTO submissions VALUES (?, ?, ?, ?, ?, ?)",
+            [int(cycle_id[0]), int(ctx.author.id), str(participation_data[0]), timestamp_submitted, contents])
+        await self.bot.db.commit()
+
+        await ctx.send(f"Submitted")
+
 
 async def setup(bot):
     await bot.db.execute("""
