@@ -2,6 +2,9 @@ import discord
 from discord.ext import commands
 from mtd.modules import permissions
 import json
+import zipfile
+import os
+import tempfile
 
 
 def participants_json_builder(results):
@@ -63,11 +66,16 @@ class ContestTools(commands.Cog):
             await ctx.send("Please set a cycle ID first.")
             return
 
-        async with self.bot.db.execute("SELECT * FROM participation WHERE cycle_id = ?", [int(cycle_id)]) as cursor:
+        async with self.bot.db.execute("SELECT * FROM participation WHERE cycle_id = ?", [int(cycle_id[0])]) as cursor:
             all_participation = await cursor.fetchall()
 
-        await ctx.send(file=discord.File(fp=json.dumps(participants_json_builder(all_participation), indent=4),
-                                         filename="participants.json"))
+        # TODO: make this safer for non-docker execution
+
+        with tempfile.TemporaryDirectory() as tempdir:
+            with open("participants.json", "w") as f:
+                json.dump(participants_json_builder(all_participation), f, indent=4)
+
+            await ctx.send(file=discord.File(fp="participants.json", filename="participants.json"))
 
     @commands.command(name="export_submissions", brief="Export submissions (in a zip download)")
     @commands.check(permissions.is_admin)
