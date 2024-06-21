@@ -60,7 +60,7 @@ class Participation(commands.Cog):
                 return
 
         embed = discord.Embed(
-            description="Eligibility check",
+            description="",
             color=0xFFFFFF
         )
 
@@ -79,10 +79,10 @@ class Participation(commands.Cog):
             embed.set_image(url="https://i.imgur.com/6w66FUv.png")
 
         if not await self.time_check():
-            embed.description += f"\n\nIt's either too early or too late to participate in this contest."
+            embed.description += f"It's either too early or too late to participate in this contest."
 
         embed.set_author(
-            name=str(ctx.author.display_name),
+            name=f"Eligibility: {str(ctx.author.display_name)}",
             icon_url=ctx.author.display_avatar.url
         )
         await ctx.send(embed=embed)
@@ -224,7 +224,7 @@ class Participation(commands.Cog):
         embed.add_field(name="Hard Deadline", value=f"<t:{timestamp_grace_deadline}:f>")
 
         embed.set_author(
-            name=str(ctx.author.display_name),
+            name=f"Participation: {str(ctx.author.display_name)}",
             icon_url=ctx.author.display_avatar.url
         )
         await ctx.send(embed=embed)
