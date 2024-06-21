@@ -157,10 +157,15 @@ class DMManagement(commands.Cog):
             if message.channel.recipient:
                 description += f"Recipient: {message.channel.recipient.name}"
 
+            forwarded_attachments = []
+            if message.attachments:
+                for attachment in message.attachments:
+                    forwarded_attachments.append(await attachment.to_file())
+
             await channel.send(
                 content=description,
                 embed=await DMEmbeds.post_message(message),
-                files=message.attachments
+                files=forwarded_attachments
             )
 
 
