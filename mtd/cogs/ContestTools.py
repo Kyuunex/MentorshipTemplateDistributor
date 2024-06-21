@@ -69,6 +69,13 @@ class ContestTools(commands.Cog):
         await ctx.send(file=discord.File(fp=json.dumps(participants_json_builder(all_participation), indent=4),
                                          filename="participants.json"))
 
+    @commands.command(name="export_submissions", brief="Export submissions (in a zip download)")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def export_submissions(self, ctx):
+        # TODO: PLACEHOLDER
+        await ctx.send("This is a placeholder.")
+
 
 async def setup(bot):
     await bot.add_cog(ContestTools(bot))
