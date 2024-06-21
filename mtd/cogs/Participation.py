@@ -151,22 +151,31 @@ class Participation(commands.Cog):
             return
 
         async with self.bot.db.execute(
-                "SELECT timestamp_requested, timestamp_timeslot_deadline, timestamp_submitted FROM participation "
-                "WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
-                [int(member.id), int(cycle_id[0]), str(gamemode)]
+                "SELECT timestamp_requested, timestamp_timeslot_deadline, timestamp_submitted, gamemode FROM participation "
+                "WHERE user_id = ? AND cycle_id = ?",
+                [int(member.id), int(cycle_id[0])]
         ) as cursor:
-            has_already_participated = await cursor.fetchone()
+            participations = await cursor.fetchall() or []
 
-        if has_already_participated:
-            response_str = (f"You have already participated in this contest this cycle. "
-                            f"You signed up on <t:{has_already_participated[0]}:f> "
-                            f"with deadline of <t:{has_already_participated[1]}:f>. ")
-            if has_already_participated[2]:
-                response_str += f"You have submitted your entry on <t:{has_already_participated[2]}:f>"
+        for participation in participations:
+            if participation[3] == gamemode:
+                response_str = (f"You have already participated in this gamemode this cycle. "
+                                f"You signed up on <t:{participation[0]}:f> "
+                                f"with deadline of <t:{participation[1]}:f>. ")
+                if participation[2]:
+                    response_str += f"You have submitted your entry on <t:{participation[2]}:f>"
+                else:
+                    response_str += f"You have not submitted an entry."
+                await ctx.send(response_str)
+                return
             else:
-                response_str += f"You have not submitted an entry."
-            await ctx.send(response_str)
-            return
+                # not submitted and still has time
+                if not participation[2] and time.time() < (participation[1] + 5 * 60):
+                    response_str = (f"You are already participating in this contest in {participation[3]} and have not submitted an entry. "
+                                    f"You signed up on <t:{participation[0]}:f> "
+                                    f"with deadline of <t:{participation[1]}:f>. ")
+                    await ctx.send(response_str)
+                    return
 
         timestamp_requested = int(time.time())
         timestamp_submitted = None
