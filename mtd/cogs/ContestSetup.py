@@ -213,7 +213,7 @@ class ContestSetup(commands.Cog):
             await ctx.send("Gamemode must be one of: osu, taiko, mania, ctb")
             return
 
-        await self.bot.db.execute("DELETE FROM eligibility_roles WHERE role_id = ?", [int(role_id)])
+        await self.bot.db.execute("DELETE FROM eligibility_roles WHERE role_id = ? AND gamemode = ?", [int(role_id), gamemode])
         await self.bot.db.execute("INSERT INTO eligibility_roles VALUES (?, ?)", [int(role_id), gamemode])
         await self.bot.db.commit()
 
