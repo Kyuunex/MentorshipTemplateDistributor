@@ -45,13 +45,11 @@ beatmap template distribution.
 - Submit entry: `!submit` MUST attach a .osu file to the message
 
 ## Contest Tools
-- Export participant data: `!export_participants 26`
-  - This number is the Cycle ID
+- Export participant data: `!export_participants`
   - result:
     ```csv
     cycle_id,discord_id,discord_username,server_nickname,gamemode_requested,timestamp_requested,timestamp_submitted,status
     ```
     - status: DNF - did not finish, DNS - did not submit, DE - deadline exceeded, VALID - A valid entry.
 - Reset participant: `!reset_participant discord_id`. In case something breaks, they get another go.
-- Export submissions (in a zip download): `!export_submissions 26`
-  - This number is the Cycle ID
+- Export submissions (in a zip download): `!export_submissions`
