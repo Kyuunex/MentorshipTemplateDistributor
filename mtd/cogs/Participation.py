@@ -146,7 +146,7 @@ class Participation(commands.Cog):
         async with self.bot.db.execute("SELECT duration FROM durations WHERE gamemode = ?", [gamemode]) as cursor:
             duration = await cursor.fetchone()
 
-        if not cycle_id or attachment or instructions or duration:
+        if not (cycle_id and attachment and instructions and duration):
             await ctx.send("Bot unconfigured!")
             return
 
