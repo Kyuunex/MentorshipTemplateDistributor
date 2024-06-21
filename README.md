@@ -2,8 +2,6 @@
 MTD (Mentorship Template Distributor) is a Discord bot that automates the Mentorship Discord server speedmapping contest
 beatmap template distribution.
 
-# Project incomplete, do not use yet
-
 ## Contest Setup
 - Set the server where all participants are in `!set_representing_server 205772326678167552`
 - Set Cycle ID `!set_cycle_id 26`
