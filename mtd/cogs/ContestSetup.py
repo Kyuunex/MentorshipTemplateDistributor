@@ -7,6 +7,25 @@ class ContestSetup(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(name="set_cycle_id", brief="Set Cycle ID")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def set_cycle_id(self, ctx, cycle_id):
+        """
+        Which Mentorship cycle is the current number?
+        """
+
+        if not cycle_id.isdigit():
+            await ctx.send("Cycle ID must be a number")
+            return
+
+        await self.bot.db.execute("DELETE FROM contest_config_int WHERE key = ?", ["cycle_id"])
+        await self.bot.db.execute("INSERT INTO contest_config_int VALUES (?, ?)", ["cycle_id", int(cycle_id)])
+
+        await self.bot.db.commit()
+
+        await ctx.send(f"Cycle ID set to: {cycle_id}")
+
     @commands.command(name="set_start", brief="Set contest start time (UTC)")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
