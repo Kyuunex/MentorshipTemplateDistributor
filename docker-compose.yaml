@@ -1,0 +1,17 @@
+services:
+  mtd:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./db/:/sqlite/db/
+    environment:
+      - MTD_DATA_DIR=/sqlite/db/data
+      - MTD_CACHE_DIR=/sqlite/db/cache
+      - MTD_LOG_DIR=/sqlite/db/log
+      - MTD_TOKEN=${MTD_TOKEN}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./mtd/
+          target: /usr/src/app/

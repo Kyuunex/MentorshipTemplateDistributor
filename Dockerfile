@@ -1,7 +1,9 @@
 FROM python:3.11-slim-bullseye
 
-COPY . /tmp/mtd/
+WORKDIR /usr/src/app
+COPY requirements.txt ./
+RUN pip install --trusted-host pypi.python.org --no-cache-dir -r requirements.txt
 
-RUN pip3 install --trusted-host pypi.python.org -r /tmp/mtd/requirements.txt /tmp/mtd
+COPY . .
 
-CMD ["python3", "-m", "mtd"]
+CMD ["python", "-m", "mtd"]
