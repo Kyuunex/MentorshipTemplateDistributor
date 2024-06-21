@@ -2,11 +2,18 @@ from discord.ext import commands
 from mtd.modules import permissions
 import discord
 import time
+import asyncio
 
 
 class Participation(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, saved_reminders):
         self.bot = bot
+
+        for reminder in saved_reminders:
+            self.bot.background_tasks.append(
+                self.bot.loop.create_task(
+                    self.reminder_task(int(reminder[1]), int(reminder[2]), str(reminder[3])))
+            )
 
     async def eligibility_check(self, user, guild, gamemode):
         async with self.bot.db.execute("SELECT user_id FROM ineligible_users WHERE user_id = ? AND gamemode = ?",
@@ -222,7 +229,17 @@ class Participation(commands.Cog):
         )
         await ctx.send(embed=embed)
 
-        # TODO: add a reminder
+        await self.bot.db.execute(
+            "INSERT INTO reminders VALUES (?, ?, ?, ?)",
+            [int(cycle_id[0]), int(timestamp_timeslot_deadline), int(ctx.author.id), str(gamemode)]
+        )
+        await self.bot.db.commit()
+
+        self.bot.background_tasks.append(
+            self.bot.loop.create_task(self.reminder_task(
+                int(timestamp_timeslot_deadline), int(ctx.author.id), gamemode)
+            )
+        )
 
     @commands.command(name="submit", brief="Submit entry, MUST attach a .osu file to the message")
     @commands.check(permissions.is_not_ignored)
@@ -298,6 +315,76 @@ class Participation(commands.Cog):
 
         await ctx.send(f"Submitted")
 
+    @commands.command(name="debug_reminder", brief="debug_reminder")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def debug_reminder(self, ctx, delay=5, gamemode="osu"):
+        async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
+            cycle_id = await cursor.fetchone()
+
+        timestamp = int(time.time() + int(delay))
+        await self.bot.db.execute("INSERT INTO reminders VALUES (?, ?, ?, ?)",
+                                  [int(cycle_id[0]), int(timestamp), int(ctx.author.id), str(gamemode)])
+        await self.bot.db.commit()
+
+        self.bot.background_tasks.append(
+            self.bot.loop.create_task(self.reminder_task(int(timestamp), int(ctx.author.id), gamemode))
+        )
+        await ctx.send(f"Debug reminder set <t:{timestamp}:R>")
+
+    async def reminder_task(self, timestamp, user_id, gamemode):
+        await self.bot.wait_until_ready()
+
+        async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
+            cycle_id = await cursor.fetchone()
+
+        delay_amount = int(timestamp) - int(time.time())
+
+        if delay_amount < 0:
+            recipient_str = user_id
+            recipient = self.bot.get_user(int(user_id))
+            if recipient:
+                recipient_str = recipient.name
+
+            print(f"The reminder to {recipient_str} was never sent because the bot was down at that exact time.")
+            await self.nuke_reminder(cycle_id[0], timestamp, user_id, gamemode)
+            return
+
+        await asyncio.sleep(delay_amount)
+
+        async with self.bot.db.execute("SELECT * FROM reminders "
+                                       "WHERE cycle_id = ? AND timestamp = ? AND user_id = ? AND gamemode = ?",
+                                       [int(cycle_id[0]), int(timestamp), int(user_id), str(gamemode)]) as cursor:
+            is_not_deleted = await cursor.fetchone()
+
+        async with self.bot.db.execute("SELECT * FROM submissions "
+                                       "WHERE cycle_id = ? AND user_id = ? AND gamemode = ?",
+                                       [int(cycle_id[0]), int(user_id), str(gamemode)]) as cursor:
+            already_submitted = await cursor.fetchone()
+
+        if already_submitted or (not is_not_deleted):
+            await self.nuke_reminder(cycle_id[0], timestamp, user_id, gamemode)
+            return
+
+        member = self.bot.get_user(int(user_id))
+        if not member:
+            await self.nuke_reminder(cycle_id[0], timestamp, user_id, gamemode)
+            return
+
+        grace_deadline = timestamp + ((5 * 60) - 20)  # tell them they have 20 seconds less than they actually have
+        # to get rid of possible complains
+
+        await member.send(f"Hi, {member.name}, the deadline to submit your entry is upon you. "
+                          f"Now is the time to get the .osu file and send it. "
+                          f"Hard submission deadline is <t:{grace_deadline}:R> to account for internet issues, etc.")
+
+    async def nuke_reminder(self, cycle_id, timestamp, user_id, gamemode):
+        await self.bot.db.execute("DELETE FROM reminders "
+                                  "WHERE cycle_id = ? AND timestamp = ? AND user_id = ? AND gamemode = ?",
+                                  [int(cycle_id), int(timestamp), int(user_id), str(gamemode)])
+        await self.bot.db.commit()
+        return
+
 
 async def setup(bot):
     await bot.db.execute("""
@@ -324,4 +411,17 @@ async def setup(bot):
             "status"    TEXT NOT NULL
         )
         """)
-    await bot.add_cog(Participation(bot))
+    await bot.db.execute("""
+        CREATE TABLE IF NOT EXISTS "reminders" (
+            "cycle_id"    INTEGER NOT NULL, 
+            "timestamp"    INTEGER NOT NULL, 
+            "user_id"    INTEGER NOT NULL,
+            "gamemode"    TEXT NOT NULL
+        )
+        """)
+    await bot.db.commit()
+
+    async with bot.db.execute("SELECT * FROM reminders") as cursor:
+        saved_reminders = await cursor.fetchall()
+
+    await bot.add_cog(Participation(bot, saved_reminders))
