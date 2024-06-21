@@ -235,7 +235,7 @@ class ContestSetup(commands.Cog):
             await ctx.send("Gamemode must be one of: osu, taiko, mania, ctb")
             return
 
-        await self.bot.db.execute("DELETE FROM durations WHERE gamemode = ?", [int(gamemode)])
+        await self.bot.db.execute("DELETE FROM durations WHERE gamemode = ?", [str(gamemode)])
         await self.bot.db.execute("INSERT INTO durations VALUES (?, ?)", [int(duration), gamemode])
         await self.bot.db.commit()
 
