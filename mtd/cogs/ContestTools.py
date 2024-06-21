@@ -81,8 +81,43 @@ class ContestTools(commands.Cog):
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     async def export_submissions(self, ctx):
-        # TODO: PLACEHOLDER
-        await ctx.send("This is a placeholder.")
+        """
+        Exports submissions as a ZIP file.
+
+        TODO: Make this safe to run in a non-docker environment.
+        """
+
+        async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
+            cycle_id = await cursor.fetchone()
+
+        if not cycle_id:
+            await ctx.send("Please set a cycle ID first.")
+            return
+
+
+        async with self.bot.db.execute("SELECT * FROM submissions WHERE cycle_id = ?", [int(cycle_id[0])]) as cursor:
+            all_submissions = await cursor.fetchall()
+
+        with tempfile.TemporaryDirectory() as tempdir:
+            os.mkdir(os.path.join(tempdir, "submissions"))
+            for submission in all_submissions:
+                _, user_id, gamemode, timestamp_submitted, file, status = submission
+                
+                # TODO: JOIN before
+                async with self.bot.db.execute("SELECT nickname FROM participation WHERE cycle_id = ? AND gamemode = ? AND user_id = ?", [cycle_id[0], gamemode, user_id]) as cursor:
+                    username = await cursor.fetchone() or ("")
+                
+                
+                filename = f"{status} {gamemode} {user_id} {username[0]}.osu"
+                submission_dir = os.path.join(tempdir, "submissions")
+                with open(os.path.join(submission_dir, filename), "w") as f:
+                    f.write(file.decode("utf-8"))
+
+            with zipfile.ZipFile(os.path.join(tempdir, "submissions.zip"), "w", zipfile.ZIP_DEFLATED) as zip_file:
+                for submission_file in os.listdir(submission_dir):
+                    zip_file.write(os.path.join(submission_dir, submission_file), submission_file)
+
+            await ctx.send(file=discord.File(os.path.join(tempdir, "submissions.zip"), filename=f"Submissions Cycle {cycle_id}.zip"))
 
 
 async def setup(bot):
