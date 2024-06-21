@@ -47,8 +47,21 @@ beatmap template distribution.
 ## Contest Tools
 - Export participant data: `!export_participants`
   - result:
-    ```csv
-    cycle_id,discord_id,discord_username,server_nickname,gamemode_requested,timestamp_requested,timestamp_submitted,status
+    ```json
+    [
+      {
+        "cycle_id": 26,
+        "user_id": 155976140073205761,
+        "username": "kyuunex",
+        "nickname": "Kyuunex",
+        "gamemode": "osu",
+        "timestamp_requested": 1719014400,
+        "timestamp_submitted": 1719024400,
+        "timestamp_timeslot_deadline": 1719025200,
+        "timestamp_grace_deadline": 1719025500,
+        "status": "VALID"
+      }
+    ]
     ```
     - status: DNF - did not finish, DNS - did not submit, DE - deadline exceeded, VALID - A valid entry.
 - Reset participant: `!reset_participant discord_id`. In case something breaks, they get another go.

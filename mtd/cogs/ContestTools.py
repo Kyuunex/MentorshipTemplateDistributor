@@ -27,7 +27,7 @@ class ContestTools(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="reset_participant", brief="reset_participant")
+    @commands.command(name="reset_participant", brief="In case something breaks, they get another go.")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     async def reset_participant(self, ctx, user_id):
@@ -48,10 +48,14 @@ class ContestTools(commands.Cog):
 
         await ctx.send(f"{user_id} has been reset")
 
-    @commands.command(name="export_participants", brief="reset_participant")
+    @commands.command(name="export_participants", brief="Export participant data (JSON) download")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     async def export_participants(self, ctx):
+        """
+        Export participant data in a JSON format. Does not contain submitted files.
+        """
+
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
             cycle_id = await cursor.fetchone()
 
