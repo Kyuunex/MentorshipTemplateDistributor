@@ -218,6 +218,9 @@ class Participation(commands.Cog):
     @commands.command(name="submit", brief="Submit entry, MUST attach a .osu file to the message")
     @commands.check(permissions.is_not_ignored)
     async def submit(self, ctx):
+        # TODO: improve a usecase where a user participates in multiple gamemodes within the same cycle.
+        # Right now, participating in 2 or more gamemodes in the same cycle will bork this command.
+
         if ctx.guild:
             await ctx.send("This command can only be used in a DM")
             return
@@ -239,12 +242,16 @@ class Participation(commands.Cog):
             await ctx.send(f"You have not signed up for the contest, thus you can't submit an entry.")
             return
 
+        gamemode = participation_data[0]
+
+        timestamp_grace_deadline = participation_data[1]
+
         timestamp_submitted = int(time.time())
         # check deadline
 
         if timestamp_submitted > int(participation_data[1]):
             await ctx.send(f"Deadline has passed. You can not submit anymore. "
-                           f"You had until <t:{participation_data[1]}:f> to submit your entry.")
+                           f"You had until <t:{timestamp_grace_deadline}:f> to submit your entry.")
             return
 
         if ctx.message.attachments:
@@ -253,9 +260,31 @@ class Participation(commands.Cog):
             await ctx.send(f"Please attach your entry, type !submit, and send")
             return
 
+        status = "VALID"
+
+        async with self.bot.db.execute(
+                "SELECT * FROM submissions WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
+                [int(ctx.author.id), int(cycle_id[0]), gamemode]) as cursor:
+            has_already_submitted = await cursor.fetchone()
+
+        if has_already_submitted:
+            await self.bot.db.execute(
+                "UPDATE submissions "
+                "SET file = ? AND timestamp_submitted = ? AND status = ? "
+                "WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
+                [contents, timestamp_submitted, status, int(ctx.author.id), int(cycle_id[0]), str(gamemode)])
+            await ctx.send(f"I have updated your entry. Please note that you can't do this past the hard deadline.")
+        else:
+            await self.bot.db.execute(
+                "INSERT INTO submissions VALUES (?, ?, ?, ?, ?, ?)",
+                [int(cycle_id[0]), int(ctx.author.id), str(gamemode), timestamp_submitted, contents, status])
+
         await self.bot.db.execute(
-            "INSERT INTO submissions VALUES (?, ?, ?, ?, ?, ?)",
-            [int(cycle_id[0]), int(ctx.author.id), str(participation_data[0]), timestamp_submitted, contents, "VALID"])
+            "UPDATE participation "
+            "SET timestamp_submitted = ? AND status = ? "
+            "WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
+            [timestamp_submitted, status, int(ctx.author.id), int(cycle_id[0]), gamemode])
+
         await self.bot.db.commit()
 
         await ctx.send(f"Submitted")
