@@ -154,7 +154,7 @@ class DMManagement(commands.Cog):
             channel = self.bot.get_channel(int(dm_monitor_channel[0]))
             # TODO: attachments may be completely broken due to discord introducing tokens
             await channel.send(content=f"{str(message.channel.id)} : {message.channel.recipient}",
-                               embed=await DMEmbeds.post_message(message))
+                               embed=await DMEmbeds.post_message(message), files=message.attachments)
 
 
 async def setup(bot):
