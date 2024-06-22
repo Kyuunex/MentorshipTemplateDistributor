@@ -3,6 +3,7 @@ from mtd.modules import permissions
 import discord
 import time
 import asyncio
+import logging
 
 
 class Participation(commands.Cog):
@@ -52,12 +53,14 @@ class Participation(commands.Cog):
     @commands.command(name="check_eligibility", brief="Check eligibility")
     @commands.check(permissions.is_not_ignored)
     async def check_eligibility(self, ctx):
-        guild = ctx.guild
+        if ctx.guild:
+            logging.warning("!check_eligibility called in guild")
+            return
+
+        guild = self.bot.representing_guild
         if not guild:
-            guild = self.bot.representing_guild
-            if not guild:
-                await ctx.send("Bot misconfigured")
-                return
+            await ctx.send("Bot misconfigured")
+            return
 
         embed = discord.Embed(
             description="",
@@ -413,8 +416,8 @@ async def setup(bot):
         """)
     await bot.db.execute("""
         CREATE TABLE IF NOT EXISTS "reminders" (
-            "cycle_id"    INTEGER NOT NULL, 
-            "timestamp"    INTEGER NOT NULL, 
+            "cycle_id"    INTEGER NOT NULL,
+            "timestamp"    INTEGER NOT NULL,
             "user_id"    INTEGER NOT NULL,
             "gamemode"    TEXT NOT NULL
         )
