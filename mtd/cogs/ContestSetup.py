@@ -84,7 +84,7 @@ class ContestSetup(commands.Cog):
 
         await self.bot.db.commit()
 
-        await ctx.send(f"Contest start time is set to <t:{unix_timestamp}:F>")
+        await ctx.send(f"Contest end time is set to <t:{unix_timestamp}:F>")
 
     @commands.command(name="set_end_unix", brief="Set contest end time (UNIX)")
     @commands.check(permissions.is_admin)
@@ -104,7 +104,7 @@ class ContestSetup(commands.Cog):
 
         await self.bot.db.commit()
 
-        await ctx.send(f"Contest start time is set to <t:{unix_timestamp}:F>")
+        await ctx.send(f"Contest end time is set to <t:{unix_timestamp}:F>")
 
     @commands.command(name="set_attachment", brief="Set Attachment")
     @commands.check(permissions.is_admin)
