@@ -196,7 +196,7 @@ class BotManagement(commands.Cog):
     async def set_activity(self, ctx, *, string):
         """
         Set "Playing" activity.
-        
+
         string: Playing what goes here.
         """
 
@@ -204,6 +204,24 @@ class BotManagement(commands.Cog):
         await self.bot.change_presence(activity=activity)
 
         await ctx.send(":ok_hand:")
+
+    @commands.command(name="set_db_dump_channel", brief="Approve the current channel for dumping the database")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    @commands.guild_only()
+    async def set_db_dump_channel(self, ctx):
+        """
+        Approve the channel this is called in for DB dumps.
+        Useful to back up the database in case something happens
+        """
+
+        await self.bot.db.execute("DELETE FROM channels WHERE setting = ? AND guild_id = ? AND channel_id = ?",
+                                  ["db_dump", int(ctx.guild.id), int(ctx.channel.id)])
+        await self.bot.db.execute("INSERT INTO channels VALUES (?, ?, ?)",
+                                  ["db_dump", int(ctx.guild.id), int(ctx.channel.id)])
+        await self.bot.db.commit()
+
+        await ctx.send("This channel is now approved for DB dumps.")
 
     @commands.command(name="db_dump", brief="Perform a database dump")
     @commands.check(permissions.is_admin)
@@ -216,8 +234,8 @@ class BotManagement(commands.Cog):
         This will fail if the database file size is more than 8 MB.
         """
 
-        async with self.bot.db.execute("SELECT channel_id FROM channels WHERE setting = ? and channel_id = ?",
-                                       ["db_dump", int(ctx.channel.id)]) as cursor:
+        async with self.bot.db.execute("SELECT channel_id FROM channels WHERE setting = ? AND guild_id = ? AND channel_id = ?",
+                                       ["db_dump", int(ctx.guild.id), int(ctx.channel.id)]) as cursor:
             db_dump_channel = await cursor.fetchone()
 
         if not db_dump_channel:
