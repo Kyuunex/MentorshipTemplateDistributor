@@ -300,6 +300,10 @@ class Participation(commands.Cog):
             await ctx.send(f"Please submit a **.osu** file. Not **.osz** or anything else.")
             return
 
+        if attachment.size > 2 * 1024 * 1024:
+            await ctx.send(f"Attached .osu file is too large, max 2 MB is allowed.")
+            return
+
         contents = attachment.read()
 
         status = "VALID"
