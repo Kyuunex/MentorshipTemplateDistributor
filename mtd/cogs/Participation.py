@@ -224,8 +224,8 @@ class Participation(commands.Cog):
         embed.add_field(name="Cycle", value=int(cycle_id[0]))
         embed.add_field(name="Gamemode", value=gamemode)
         embed.add_field(name="Start time", value=f"<t:{timestamp_requested}:f>")
-        embed.add_field(name="Deadline", value=f"<t:{timestamp_timeslot_deadline}:f>")
-        embed.add_field(name="Hard Deadline", value=f"<t:{timestamp_grace_deadline}:f>")
+        embed.add_field(name="Mapping Deadline", value=f"<t:{timestamp_timeslot_deadline}:f>")
+        embed.add_field(name="Submission Deadline", value=f"<t:{timestamp_grace_deadline}:f>")
 
         embed.set_author(
             name=f"Participation: {str(ctx.author.display_name)}",
