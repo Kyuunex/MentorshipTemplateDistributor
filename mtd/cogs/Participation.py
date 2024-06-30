@@ -161,8 +161,8 @@ class Participation(commands.Cog):
             return
 
         async with self.bot.db.execute(
-                "SELECT timestamp_requested, timestamp_timeslot_deadline, timestamp_submitted, gamemode FROM participation "
-                "WHERE user_id = ? AND cycle_id = ?",
+                "SELECT timestamp_requested, timestamp_timeslot_deadline, timestamp_submitted, gamemode "
+                "FROM participation WHERE user_id = ? AND cycle_id = ?",
                 [int(member.id), int(cycle_id[0])]
         ) as cursor:
             participations = await cursor.fetchall() or []
@@ -181,7 +181,8 @@ class Participation(commands.Cog):
             else:
                 # not submitted and still has time
                 if not participation[2] and time.time() < (participation[1] + 5 * 60):
-                    response_str = (f"You are already participating in this contest in {participation[3]} and have not submitted an entry. "
+                    response_str = (f"You are already participating in this contest in {participation[3]} "
+                                    f"and have not submitted an entry. "
                                     f"You signed up on <t:{participation[0]}:f> "
                                     f"with deadline of <t:{participation[1]}:f>. ")
                     await ctx.send(response_str)
