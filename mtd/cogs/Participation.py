@@ -380,7 +380,8 @@ class Participation(commands.Cog):
 
         await member.send(f"Hi, {member.name}, the deadline to submit your entry is upon you. "
                           f"Now is the time to get the .osu file and send it. "
-                          f"Hard submission deadline is <t:{grace_deadline}:R> to account for internet issues, etc.")
+                          f"Hard submission deadline is <t:{grace_deadline}:R> to account for internet issues, etc. "
+                          f"Please do not run this clock down and submit ASAP! ")
 
     async def nuke_reminder(self, cycle_id, timestamp, user_id, gamemode):
         await self.bot.db.execute("DELETE FROM reminders "
