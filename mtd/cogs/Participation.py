@@ -290,11 +290,13 @@ class Participation(commands.Cog):
                            f"You had until <t:{timestamp_grace_deadline}:f> to submit your entry.")
             return
 
-        if len(ctx.message.attachments) == 1:
-            contents = await ctx.message.attachments[0].read()
-        else:
+        if not len(ctx.message.attachments) == 1:
             await ctx.send(f"Please attach your entry, type !submit, and send. Only attach one file.")
             return
+
+        attachment = await ctx.message.attachments[0]
+
+        contents = attachment.read()
 
         status = "VALID"
 
