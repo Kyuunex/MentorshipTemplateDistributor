@@ -296,6 +296,10 @@ class Participation(commands.Cog):
 
         attachment = await ctx.message.attachments[0]
 
+        if not attachment.filename.endswith(".osu"):
+            await ctx.send(f"Please submit a **.osu** file. Not **.osz** or anything else.")
+            return
+
         contents = attachment.read()
 
         status = "VALID"
