@@ -219,6 +219,12 @@ class Participation(commands.Cog):
         # source https://www.freepik.com/free-vector/simple-vibing-cat-square-meme_58459053.htm
         embed.set_image(url="https://i.imgur.com/UMhMLui.jpeg")
 
+        embed.description += (f"\n\nI will remind you when it's time to submit, "
+                              f"so make sure your notifications are working. ")
+
+        if member.status.dnd:
+            embed.description += f"You are on \"Do not disturb\", turn it off to get the notification in time."
+
         embed.description += f"\n\n** Attachment: {attachment[0]} **"
 
         embed.add_field(name="Cycle", value=int(cycle_id[0]))
