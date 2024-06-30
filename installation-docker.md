@@ -22,7 +22,7 @@ The simplest way to run the bot is using the docker-compose (or `docker compose`
 In this case, the database will be available outside the container at `/db/data/`
 
 ```bash
-git clone https://github.com/Kyuunex/MTD.git -b master # replace master with version from Releases tab
+git clone https://github.com/Kyuunex/MentorshipTemplateDistributor.git -b master MTD  # replace master with version from Releases tab
 cd MTD
 # make the MTD_TOKEN variable available in your environment, e.g. with a .env or .envrc file
 docker-compose up --watch # rebuilds the container if there are changes in /mtd folder
@@ -42,7 +42,7 @@ If you are restoring a database backup, it goes into this folder.
 These instructions are newly written and not thoroughly tested, but what you should be doing looks something like this: 
 
 ```bash
-git clone https://github.com/Kyuunex/MTD.git -b master # replace master with version from Releases tab
+git clone https://github.com/Kyuunex/MentorshipTemplateDistributor.git -b master MTD # replace master with version from Releases tab
 cd MTD
 docker build -t mtd .
 docker run -e MTD_TOKEN=your_bot_token_goes_here mtd # first run only
