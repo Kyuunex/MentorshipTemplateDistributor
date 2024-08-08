@@ -433,7 +433,7 @@ async def setup(bot):
             "user_id"    INTEGER NOT NULL,
             "gamemode"    TEXT NOT NULL,
             "timestamp_submitted"    INTEGER NOT NULL,
-            "file"    TEXT NOT NULL,
+            "file"    BLOB NOT NULL,
             "status"    TEXT NOT NULL
         )
         """)
