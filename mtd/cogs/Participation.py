@@ -1,5 +1,6 @@
 from discord.ext import commands
 from mtd.modules import permissions
+from mtd.classes.Beatmap import Beatmap
 import discord
 import time
 import asyncio
@@ -282,12 +283,16 @@ class Participation(commands.Cog):
 
         contents = await attachment.read()
 
+        beatmap_obj = Beatmap(contents.decode())
+        detected_gamemode = beatmap_obj.get_mode_str()
+
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
             cycle_id = await cursor.fetchone()
 
         async with self.bot.db.execute(
-                "SELECT gamemode, timestamp_grace_deadline FROM participation WHERE user_id = ? AND cycle_id = ?",
-                [int(ctx.author.id), int(cycle_id[0])]) as cursor:
+                "SELECT gamemode, timestamp_grace_deadline "
+                "FROM participation WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
+                [int(ctx.author.id), int(cycle_id[0]), detected_gamemode]) as cursor:
             participation_data = await cursor.fetchone()
 
         if not participation_data:
