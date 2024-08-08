@@ -1,10 +1,10 @@
 # Installation on Linux
-NOTE: These instructions were written for debian bullseye. Since then, one thing changed and that is, externally-managed-environment.
-# TODO: update this
+It's worth noting that there is a [docker installation method](installation-docker.md) as well.
 
 ### Requirements:
 + `git`
 + `python3` (version 3.10 minimum)
++ `python3-venv`
 
 ### Intents
 [Visit this page](https://discord.com/developers/applications/), locate your bot and enable 
@@ -19,9 +19,9 @@ If you are restoring a database backup, it goes into this folder.
 You need to either put them in the respective text files in the bot's data folder or 
 supply them via environment variables. if you do both, env vars will be used  
 
-| text file  | environment variables | where to get |
-| ------------- | ------------- | ------------- |
-| token.txt  | MTD_TOKEN  | [create a new app, make a bot acc](https://discord.com/developers/applications/) |
+| text file | environment variables | where to get                                                                     |
+|-----------|-----------------------|----------------------------------------------------------------------------------|
+| token.txt | MTD_TOKEN             | [create a new app, make a bot acc](https://discord.com/developers/applications/) |
 
 ### Installation for debugging and development
 ```bash
@@ -35,27 +35,21 @@ pip install -r requirements.txt
 To install a modified version of the bot for production use, type `pip3 install . --upgrade` while in the same directory
 
 ### Installation for production use
-Head over to the Releases section, pick the latest release, 
-and in its description you will see an installation command. 
-Open the Terminal, paste that in and press enter.
-
-To install the latest unstable version, type the following in the Terminal instead 
-```bash
-python3 -m pip install git+https://github.com/Kyuunex/MentorshipTemplateDistributor.git@master --upgrade
-```
-
-To run the bot, type `python3 -m mtd` in the command line
-
-### All these amount to the following
-
 ```sh
-python3 -m pip install git+https://github.com/Kyuunex/MentorshipTemplateDistributor.git@master --upgrade
 mkdir -p $HOME/.local/share/MTD
-# wget -O $HOME/.local/share/MTD/maindb.sqlite3 REPLACE_THIS_WITH_DIRECT_FILE_LINK # optional database backup restore
+python3 -m venv $HOME/.local/share/MTD/venv
+source $HOME/.local/share/MTD/venv/bin/activate
+python3 -m pip install git+https://github.com/Kyuunex/MentorshipTemplateDistributor.git@master --upgrade  # You can replace this with a release if you want
+```
+Repeat the commands 3 and 4 for upgrading.
+
+### Bot Configuration
+```sh
+# wget -O $HOME/.local/share/MTD/maindb.sqlite3 REPLACE_THIS_WITH_DIRECT_FILE_LINK  # optional database backup restore
 echo "your_bot_token_goes_here" | tee $HOME/.local/share/MTD/token.txt
 ```
 
-### Installing the bot as a systemd service
+### Configuring the bot as a systemd service
 The purpose of this is to make the bot start automatically on boot, useful for example after a power outage.  
 
 Create the following file: `/lib/systemd/system/mtd.service`  
@@ -71,7 +65,7 @@ Restart=always
 RestartSec=5
 User=pi
 Type=simple
-ExecStart=/usr/bin/python3 -m mtd
+ExecStart=/home/pi/.local/share/MTD/venv/bin/python3 -m mtd
 
 [Install]
 WantedBy=multi-user.target
