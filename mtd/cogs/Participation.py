@@ -266,6 +266,22 @@ class Participation(commands.Cog):
             await ctx.send("Bot misconfigured")
             return
 
+        if not len(ctx.message.attachments) == 1:
+            await ctx.send(f"Please attach your entry, type !submit, and send. Only attach one file.")
+            return
+
+        attachment = ctx.message.attachments[0]
+
+        if not attachment.filename.endswith(".osu"):
+            await ctx.send(f"Please submit a **.osu** file. Not **.osz** or anything else.")
+            return
+
+        if attachment.size > 2 * 1024 * 1024:
+            await ctx.send(f"Attached .osu file is too large, max 2 MB is allowed.")
+            return
+
+        contents = await attachment.read()
+
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
             cycle_id = await cursor.fetchone()
 
@@ -289,22 +305,6 @@ class Participation(commands.Cog):
             await ctx.send(f"Deadline has passed. You can not submit anymore. "
                            f"You had until <t:{timestamp_grace_deadline}:f> to submit your entry.")
             return
-
-        if not len(ctx.message.attachments) == 1:
-            await ctx.send(f"Please attach your entry, type !submit, and send. Only attach one file.")
-            return
-
-        attachment = await ctx.message.attachments[0]
-
-        if not attachment.filename.endswith(".osu"):
-            await ctx.send(f"Please submit a **.osu** file. Not **.osz** or anything else.")
-            return
-
-        if attachment.size > 2 * 1024 * 1024:
-            await ctx.send(f"Attached .osu file is too large, max 2 MB is allowed.")
-            return
-
-        contents = attachment.read()
 
         status = "VALID"
 
