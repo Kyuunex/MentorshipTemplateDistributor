@@ -357,6 +357,35 @@ class Participation(commands.Cog):
         )
         await ctx.send(f"Debug reminder set <t:{timestamp}:R>")
 
+    @commands.command(name="debug_submit", brief="debug_submit")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def debug_submit(self, ctx):
+        if not len(ctx.message.attachments) == 1:
+            await ctx.send(f"Please attach your entry, type !submit, and send. Only attach one file.")
+            return
+
+        attachment = ctx.message.attachments[0]
+
+        if not attachment.filename.endswith(".osu"):
+            await ctx.send(f"Please submit a **.osu** file. Not **.osz** or anything else.")
+            return
+
+        if attachment.size > 2 * 1024 * 1024:
+            await ctx.send(f"Attached .osu file is too large, max 2 MB is allowed.")
+            return
+
+        contents = await attachment.read()
+
+        beatmap_obj = Beatmap(contents.decode())
+
+        await self.bot.db.execute(
+            "INSERT INTO submissions VALUES (?, ?, ?, ?, ?, ?)",
+            [int(727), int(ctx.author.id), str(beatmap_obj.get_mode_str()), int(time.time()), contents, "DEBUG"])
+        await self.bot.db.commit()
+
+        await ctx.send(f"submitted for gamemode: {beatmap_obj.get_mode_str()}")
+
     async def reminder_task(self, timestamp, user_id, gamemode):
         await self.bot.wait_until_ready()
 
