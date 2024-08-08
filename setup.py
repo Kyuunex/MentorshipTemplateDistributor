@@ -6,6 +6,7 @@ setup(
     name='mtd',
     packages=[
         'mtd',
+        'mtd.classes',
         'mtd.cogs',
         'mtd.embeds',
         'mtd.modules',
