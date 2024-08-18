@@ -74,7 +74,7 @@ class ContestTools(commands.Cog):
         if not all_participation_rows:
             await ctx.send(f"There are no participants for **cycle {cycle_id}**")
             return
-        
+
         # TODO: make this safer for non-docker execution
         # UPDATE: Kinda done?
 
