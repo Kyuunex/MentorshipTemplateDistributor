@@ -38,15 +38,15 @@ class Participation(commands.Cog):
 
     async def time_check(self):
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["start_time"]) as cursor:
-            start_time = await cursor.fetchone()
+            start_time_row = await cursor.fetchone()
 
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["end_time"]) as cursor:
-            end_time = await cursor.fetchone()
+            end_time_row = await cursor.fetchone()
 
-        if not start_time or not end_time:
+        if not start_time_row or not end_time_row:
             return False
 
-        if int(start_time[0]) < time.time() < int(end_time[0]):
+        if int(start_time_row[0]) < time.time() < int(end_time_row[0]):
             return True
 
         return False
