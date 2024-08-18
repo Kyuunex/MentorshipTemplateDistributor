@@ -109,10 +109,11 @@ class ContestTools(commands.Cog):
                 _, user_id, gamemode, timestamp_submitted, file, status = submission
                 
                 # TODO: JOIN before
-                async with self.bot.db.execute("SELECT nickname FROM participation WHERE cycle_id = ? AND gamemode = ? AND user_id = ?", [cycle_id, gamemode, user_id]) as cursor:
+                async with self.bot.db.execute("SELECT nickname FROM participation "
+                                               "WHERE cycle_id = ? AND gamemode = ? AND user_id = ?",
+                                               [cycle_id, gamemode, user_id]) as cursor:
                     username = await cursor.fetchone() or ("")
-                
-                
+
                 filename = f"{status} {gamemode} {user_id} {username[0]}.osu"
                 submission_dir = os.path.join(tempdir, "submissions")
                 with open(os.path.join(submission_dir, filename), "w") as f:
@@ -122,7 +123,10 @@ class ContestTools(commands.Cog):
                 for submission_file in os.listdir(submission_dir):
                     zip_file.write(os.path.join(submission_dir, submission_file), submission_file)
 
-            await ctx.send(file=discord.File(os.path.join(tempdir, "submissions.zip"), filename=f"Submissions Cycle {cycle_id}.zip"))
+            await ctx.send(file=discord.File(
+                os.path.join(tempdir, "submissions.zip"),
+                filename=f"Submissions Cycle {cycle_id}.zip"
+            ))
 
 
 async def setup(bot):
