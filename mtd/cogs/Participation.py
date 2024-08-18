@@ -149,56 +149,63 @@ class Participation(commands.Cog):
         # at this point we can start participating them
 
         async with self.bot.db.execute("SELECT value FROM contest_config WHERE key = ?", ["attachment"]) as cursor:
-            attachment = await cursor.fetchone()
+            attachment_row = await cursor.fetchone()
         async with self.bot.db.execute("SELECT value FROM contest_config WHERE key = ?", ["instructions"]) as cursor:
-            instructions = await cursor.fetchone()
+            instructions_row = await cursor.fetchone()
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
-            cycle_id = await cursor.fetchone()
+            cycle_id_row = await cursor.fetchone()
         async with self.bot.db.execute("SELECT duration FROM durations WHERE gamemode = ?", [gamemode]) as cursor:
-            duration = await cursor.fetchone()
+            duration_row = await cursor.fetchone()
 
-        if not (cycle_id and attachment and instructions and duration):
+        if not (cycle_id_row and attachment_row and instructions_row and duration_row):
             await ctx.send("Bot unconfigured!")
             return
+
+        cycle_id = cycle_id_row[0]
+        attachment = attachment_row[0]
+        instructions = instructions_row[0]
+        duration = duration_row[0]
 
         async with self.bot.db.execute(
                 "SELECT timestamp_requested, timestamp_timeslot_deadline, timestamp_submitted, gamemode "
                 "FROM participation WHERE user_id = ? AND cycle_id = ?",
-                [int(member.id), int(cycle_id[0])]
+                [int(member.id), int(cycle_id)]
         ) as cursor:
-            participations = await cursor.fetchall() or []
+            participation_rows = await cursor.fetchall() or []
 
-        for participation in participations:
-            if participation[3] == gamemode:
+        for participation_row in participation_rows:
+            timestamp_requested, timestamp_deadline, timestamp_submitted, requested_gamemode = participation_row
+
+            if requested_gamemode == gamemode:
                 response_str = (f"You have already participated in this gamemode this cycle. "
-                                f"You signed up on <t:{participation[0]}:f> "
-                                f"with deadline of <t:{participation[1]}:f>. ")
-                if participation[2]:
-                    response_str += f"You have submitted your entry on <t:{participation[2]}:f>"
+                                f"You signed up on <t:{timestamp_requested}:f> "
+                                f"with deadline of <t:{timestamp_deadline}:f>. ")
+                if timestamp_submitted:
+                    response_str += f"You have submitted your entry on <t:{timestamp_submitted}:f>"
                 else:
                     response_str += f"You have not submitted an entry."
                 await ctx.send(response_str)
                 return
             else:
                 # not submitted and still has time
-                if not participation[2] and time.time() < (participation[1] + 5 * 60):
-                    response_str = (f"You are already participating in this contest in {participation[3]} "
+                if not timestamp_submitted and time.time() < (timestamp_deadline + 5 * 60):
+                    response_str = (f"You are already participating in this contest in {requested_gamemode} "
                                     f"and have not submitted an entry. "
-                                    f"You signed up on <t:{participation[0]}:f> "
-                                    f"with deadline of <t:{participation[1]}:f>. ")
+                                    f"You signed up on <t:{timestamp_requested}:f> "
+                                    f"with deadline of <t:{timestamp_deadline}:f>. ")
                     await ctx.send(response_str)
                     return
 
         timestamp_requested = int(time.time())
         timestamp_submitted = None
-        timestamp_timeslot_deadline = timestamp_requested + (int(duration[0]) * 60)
+        timestamp_timeslot_deadline = timestamp_requested + (int(duration) * 60)
         timestamp_grace_deadline = timestamp_timeslot_deadline + (5 * 60)
         default_status = "DNS"
 
         await self.bot.db.execute(
             "INSERT INTO participation VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
-                int(cycle_id[0]),
+                int(cycle_id),
                 int(member.id),
                 str(member.name),
                 str(member.display_name),
@@ -213,7 +220,7 @@ class Participation(commands.Cog):
         await self.bot.db.commit()
 
         embed = discord.Embed(
-            description=instructions[0],
+            description=instructions,
             color=0xFFFFFF
         )
 
@@ -226,9 +233,9 @@ class Participation(commands.Cog):
         if member.status.dnd:
             embed.description += f"You are on \"Do not disturb\", turn it off to get the notification in time."
 
-        embed.description += f"\n\n** Attachment: {attachment[0]} **"
+        embed.description += f"\n\n** Attachment: {attachment} **"
 
-        embed.add_field(name="Cycle", value=int(cycle_id[0]))
+        embed.add_field(name="Cycle", value=int(cycle_id))
         embed.add_field(name="Gamemode", value=gamemode)
         embed.add_field(name="Start time", value=f"<t:{timestamp_requested}:f>")
         embed.add_field(name="Mapping Deadline", value=f"<t:{timestamp_timeslot_deadline}:f>")
@@ -242,7 +249,7 @@ class Participation(commands.Cog):
 
         await self.bot.db.execute(
             "INSERT INTO reminders VALUES (?, ?, ?, ?)",
-            [int(cycle_id[0]), int(timestamp_timeslot_deadline), int(ctx.author.id), str(gamemode)]
+            [int(cycle_id), int(timestamp_timeslot_deadline), int(ctx.author.id), str(gamemode)]
         )
         await self.bot.db.commit()
 
