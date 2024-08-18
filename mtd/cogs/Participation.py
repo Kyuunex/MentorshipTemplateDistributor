@@ -350,7 +350,12 @@ class Participation(commands.Cog):
 
         await self.bot.db.commit()
 
-        await ctx.send(f"Submitted")
+        embed = discord.Embed(
+            color=0xFFFFFF
+        )
+        embed.set_image(url="https://i.imgur.com/1kSXSXk.png")
+
+        await ctx.send(f"Submitted!", embed=embed)
 
     @commands.command(name="debug_reminder", brief="debug_reminder")
     @commands.check(permissions.is_admin)
