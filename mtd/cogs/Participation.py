@@ -379,9 +379,14 @@ class Participation(commands.Cog):
 
         beatmap_obj = Beatmap(contents.decode())
 
+        async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
+            cycle_id_row = await cursor.fetchone()
+
+        cycle_id = cycle_id_row[0]
+
         await self.bot.db.execute(
             "INSERT INTO submissions VALUES (?, ?, ?, ?, ?, ?)",
-            [int(727), int(ctx.author.id), str(beatmap_obj.get_mode_str()), int(time.time()), contents, "DEBUG"])
+            [int(cycle_id), int(ctx.author.id), str(beatmap_obj.get_mode_str()), int(time.time()), contents, "DEBUG"])
         await self.bot.db.commit()
 
         await ctx.send(f"submitted for gamemode: {beatmap_obj.get_mode_str()}")
