@@ -71,6 +71,10 @@ class ContestTools(commands.Cog):
         async with self.bot.db.execute("SELECT * FROM participation WHERE cycle_id = ?", [int(cycle_id)]) as cursor:
             all_participation_rows = await cursor.fetchall()
 
+        if not all_participation_rows:
+            await ctx.send(f"There are no participants for **cycle {cycle_id}**")
+            return
+        
         # TODO: make this safer for non-docker execution
 
         with tempfile.TemporaryDirectory() as tempdir:
