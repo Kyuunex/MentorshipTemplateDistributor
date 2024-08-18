@@ -60,20 +60,22 @@ class ContestTools(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
-            cycle_id = await cursor.fetchone()
+            cycle_id_row = await cursor.fetchone()
 
-        if not cycle_id:
+        if not cycle_id_row:
             await ctx.send("Please set a cycle ID first.")
             return
 
-        async with self.bot.db.execute("SELECT * FROM participation WHERE cycle_id = ?", [int(cycle_id[0])]) as cursor:
-            all_participation = await cursor.fetchall()
+        cycle_id = cycle_id_row[0]
+
+        async with self.bot.db.execute("SELECT * FROM participation WHERE cycle_id = ?", [int(cycle_id)]) as cursor:
+            all_participation_rows = await cursor.fetchall()
 
         # TODO: make this safer for non-docker execution
 
         with tempfile.TemporaryDirectory() as tempdir:
             with open("participants.json", "w") as f:
-                json.dump(participants_json_builder(all_participation), f, indent=4)
+                json.dump(participants_json_builder(all_participation_rows), f, indent=4)
 
             await ctx.send(file=discord.File(fp="participants.json", filename="participants.json"))
 
