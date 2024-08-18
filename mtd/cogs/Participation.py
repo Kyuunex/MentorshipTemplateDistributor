@@ -390,7 +390,9 @@ class Participation(commands.Cog):
         await self.bot.wait_until_ready()
 
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
-            cycle_id = await cursor.fetchone()
+            cycle_id_row = await cursor.fetchone()
+
+        cycle_id = cycle_id_row[0]
 
         delay_amount = int(timestamp) - int(time.time())
 
@@ -401,28 +403,28 @@ class Participation(commands.Cog):
                 recipient_str = recipient.name
 
             print(f"The reminder to {recipient_str} was never sent because the bot was down at that exact time.")
-            await self.nuke_reminder(cycle_id[0], timestamp, user_id, gamemode)
+            await self.nuke_reminder(cycle_id, timestamp, user_id, gamemode)
             return
 
         await asyncio.sleep(delay_amount)
 
         async with self.bot.db.execute("SELECT * FROM reminders "
                                        "WHERE cycle_id = ? AND timestamp = ? AND user_id = ? AND gamemode = ?",
-                                       [int(cycle_id[0]), int(timestamp), int(user_id), str(gamemode)]) as cursor:
+                                       [int(cycle_id), int(timestamp), int(user_id), str(gamemode)]) as cursor:
             is_not_deleted = await cursor.fetchone()
 
         async with self.bot.db.execute("SELECT * FROM submissions "
                                        "WHERE cycle_id = ? AND user_id = ? AND gamemode = ?",
-                                       [int(cycle_id[0]), int(user_id), str(gamemode)]) as cursor:
+                                       [int(cycle_id), int(user_id), str(gamemode)]) as cursor:
             already_submitted = await cursor.fetchone()
 
         if already_submitted or (not is_not_deleted):
-            await self.nuke_reminder(cycle_id[0], timestamp, user_id, gamemode)
+            await self.nuke_reminder(cycle_id, timestamp, user_id, gamemode)
             return
 
         member = self.bot.get_user(int(user_id))
         if not member:
-            await self.nuke_reminder(cycle_id[0], timestamp, user_id, gamemode)
+            await self.nuke_reminder(cycle_id, timestamp, user_id, gamemode)
             return
 
         grace_deadline = timestamp + ((5 * 60) - 20)  # tell them they have 20 seconds less than they actually have
