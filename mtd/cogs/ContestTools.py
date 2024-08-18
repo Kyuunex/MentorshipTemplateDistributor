@@ -112,7 +112,9 @@ class ContestTools(commands.Cog):
             return
 
         with tempfile.TemporaryDirectory() as tempdir:
-            os.mkdir(os.path.join(tempdir, "submissions"))
+            submission_dir = os.path.join(tempdir, "submissions")
+            os.mkdir(submission_dir)
+
             for submission_row in all_submission_rows:
                 _, user_id, gamemode, timestamp_submitted, file, status = submission_row
                 
@@ -120,21 +122,25 @@ class ContestTools(commands.Cog):
                 async with self.bot.db.execute("SELECT nickname FROM participation "
                                                "WHERE cycle_id = ? AND gamemode = ? AND user_id = ?",
                                                [cycle_id, gamemode, user_id]) as cursor:
-                    username_row = await cursor.fetchone() or ("")
+                    username_row = await cursor.fetchone()
 
-                filename = f"{status} {gamemode} {user_id} {username_row[0]}.osu"
-                submission_dir = os.path.join(tempdir, "submissions")
-                with open(os.path.join(submission_dir, filename), "w") as f:
-                    f.write(file.decode("utf-8"))
+                # The participate command always sets the nickname in the db,
+                # but the debug command does insert participation data
+                osu_username = username_row[0] if username_row else "debug_user"
 
-            with zipfile.ZipFile(os.path.join(tempdir, "submissions.zip"), "w", zipfile.ZIP_DEFLATED) as zip_file:
+                filename = f"{status} {gamemode} {user_id} {osu_username}.osu"
+
+                with open(os.path.join(submission_dir, filename), "wb") as f:
+                    f.write(file)
+
+            zip_path = os.path.join(tempdir, "submissions.zip")
+
+            # Note: zipfile.ZIP_DEFLATED requires zlib, I switched to zipfile.ZIP_STORED as it requires nothing.
+            with zipfile.ZipFile(zip_path, "x", zipfile.ZIP_DEFLATED) as zip_file:
                 for submission_file in os.listdir(submission_dir):
                     zip_file.write(os.path.join(submission_dir, submission_file), submission_file)
 
-            await ctx.send(file=discord.File(
-                os.path.join(tempdir, "submissions.zip"),
-                filename=f"Submissions Cycle {cycle_id}.zip"
-            ))
+            await ctx.send(file=discord.File(zip_path, filename=f"Submissions Cycle {cycle_id}.zip"))
 
 
 async def setup(bot):
