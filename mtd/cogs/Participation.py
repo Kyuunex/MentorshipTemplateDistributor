@@ -409,6 +409,25 @@ class Participation(commands.Cog):
 
         await ctx.send(f"submitted for gamemode: {beatmap_obj.get_mode_str()}")
 
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.guild:
+            return
+
+        if not len(message.attachments) == 1:
+            return
+
+        attachment = message.attachments[0]
+
+        if not attachment.filename.endswith(".osu"):
+            return
+
+        if attachment.size > 2 * 1024 * 1024:
+            return
+
+        await message.reply("Please use the **!submit** command to submit your entry. "
+                            "Type **!submit**, attach your entry and then send.")
+
     async def reminder_task(self, timestamp, user_id, gamemode):
         await self.bot.wait_until_ready()
 
