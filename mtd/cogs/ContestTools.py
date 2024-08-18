@@ -76,12 +76,14 @@ class ContestTools(commands.Cog):
             return
         
         # TODO: make this safer for non-docker execution
+        # UPDATE: Kinda done?
 
         with tempfile.TemporaryDirectory() as tempdir:
-            with open("participants.json", "w") as f:
+            full_export_path = os.path.join(tempdir, "participants.json")
+            with open(full_export_path, "w") as f:
                 json.dump(participants_json_builder(all_participation_rows), f, indent=4)
 
-            await ctx.send(file=discord.File(fp="participants.json", filename="participants.json"))
+            await ctx.send(file=discord.File(fp=full_export_path, filename="participants.json"))
 
     @commands.command(name="export_submissions", brief="Export submissions (in a zip download)")
     @commands.check(permissions.is_admin)
