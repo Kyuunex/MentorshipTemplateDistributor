@@ -232,7 +232,7 @@ class Participation(commands.Cog):
         embed.description += (f"\n\nI will remind you when it's time to submit, "
                               f"so make sure your notifications are working. ")
 
-        if member.status.dnd:
+        if member.status == discord.Status.dnd:
             embed.description += f"You are on \"Do not disturb\", turn it off to get the notification in time."
 
         embed.description += f"\n\n** Attachment: {attachment} **"
