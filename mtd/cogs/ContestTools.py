@@ -105,24 +105,24 @@ class ContestTools(commands.Cog):
         cycle_id = cycle_id_row[0]
 
         async with self.bot.db.execute("SELECT * FROM submissions WHERE cycle_id = ?", [int(cycle_id)]) as cursor:
-            all_submissions = await cursor.fetchall()
+            all_submission_rows = await cursor.fetchall()
 
-        if not all_submissions:
+        if not all_submission_rows:
             await ctx.send(f"There are no submissions for **cycle {cycle_id}**")
             return
 
         with tempfile.TemporaryDirectory() as tempdir:
             os.mkdir(os.path.join(tempdir, "submissions"))
-            for submission in all_submissions:
-                _, user_id, gamemode, timestamp_submitted, file, status = submission
+            for submission_row in all_submission_rows:
+                _, user_id, gamemode, timestamp_submitted, file, status = submission_row
                 
                 # TODO: JOIN before
                 async with self.bot.db.execute("SELECT nickname FROM participation "
                                                "WHERE cycle_id = ? AND gamemode = ? AND user_id = ?",
                                                [cycle_id, gamemode, user_id]) as cursor:
-                    username = await cursor.fetchone() or ("")
+                    username_row = await cursor.fetchone() or ("")
 
-                filename = f"{status} {gamemode} {user_id} {username[0]}.osu"
+                filename = f"{status} {gamemode} {user_id} {username_row[0]}.osu"
                 submission_dir = os.path.join(tempdir, "submissions")
                 with open(os.path.join(submission_dir, filename), "w") as f:
                     f.write(file.decode("utf-8"))
