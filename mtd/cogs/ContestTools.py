@@ -99,6 +99,10 @@ class ContestTools(commands.Cog):
         async with self.bot.db.execute("SELECT * FROM submissions WHERE cycle_id = ?", [int(cycle_id)]) as cursor:
             all_submissions = await cursor.fetchall()
 
+        if not all_submissions:
+            await ctx.send(f"There are no submissions for **cycle {cycle_id}**")
+            return
+
         with tempfile.TemporaryDirectory() as tempdir:
             os.mkdir(os.path.join(tempdir, "submissions"))
             for submission in all_submissions:
