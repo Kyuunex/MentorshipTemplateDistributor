@@ -28,10 +28,10 @@ class Participation(commands.Cog):
 
         async with self.bot.db.execute("SELECT role_id FROM eligibility_roles WHERE gamemode = ?",
                                        [gamemode]) as cursor:
-            eligibility_roles = await cursor.fetchall()
+            eligibility_role_rows = await cursor.fetchall()
 
-        for eligible_role in eligibility_roles:
-            if member.get_role(int(eligible_role[0])):
+        for eligible_role_row in eligibility_role_rows:
+            if member.get_role(int(eligible_role_row[0])):
                 return True
 
         return False
