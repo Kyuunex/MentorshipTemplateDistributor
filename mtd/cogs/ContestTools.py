@@ -135,7 +135,7 @@ class ContestTools(commands.Cog):
 
             zip_path = os.path.join(tempdir, "submissions.zip")
 
-            # Note: zipfile.ZIP_DEFLATED requires zlib, I switched to zipfile.ZIP_STORED as it requires nothing.
+            # Note: zipfile.ZIP_DEFLATED requires zlib, zipfile.ZIP_STORED requires nothing.
             with zipfile.ZipFile(zip_path, "x", zipfile.ZIP_DEFLATED) as zip_file:
                 for submission_file in os.listdir(submission_dir):
                     zip_file.write(os.path.join(submission_dir, submission_file), submission_file)
