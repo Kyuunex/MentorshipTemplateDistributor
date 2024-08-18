@@ -261,7 +261,7 @@ class Participation(commands.Cog):
 
         guild = self.bot.representing_guild
         if not guild:
-            await ctx.send("Bot misconfigured")
+            await ctx.send("Bot misconfigured. Representing server not set.")
             return
 
         if not len(ctx.message.attachments) == 1:
