@@ -333,7 +333,7 @@ class Participation(commands.Cog):
         if has_already_submitted:
             await self.bot.db.execute(
                 "UPDATE submissions "
-                "SET file = ? AND timestamp_submitted = ? AND status = ? "
+                "SET file = ?, timestamp_submitted = ?, status = ? "
                 "WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
                 [contents, timestamp_submitted, status, int(ctx.author.id), int(cycle_id), str(gamemode)])
             await ctx.send(f"I have updated your entry. Please note that you can't do this past the hard deadline.")
@@ -344,7 +344,7 @@ class Participation(commands.Cog):
 
         await self.bot.db.execute(
             "UPDATE participation "
-            "SET timestamp_submitted = ? AND status = ? "
+            "SET timestamp_submitted = ?, status = ? "
             "WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
             [timestamp_submitted, status, int(ctx.author.id), int(cycle_id), gamemode])
 
