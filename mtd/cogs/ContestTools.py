@@ -88,14 +88,15 @@ class ContestTools(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
-            cycle_id = await cursor.fetchone()
+            cycle_id_row = await cursor.fetchone()
 
-        if not cycle_id:
+        if not cycle_id_row:
             await ctx.send("Please set a cycle ID first.")
             return
 
+        cycle_id = cycle_id_row[0]
 
-        async with self.bot.db.execute("SELECT * FROM submissions WHERE cycle_id = ?", [int(cycle_id[0])]) as cursor:
+        async with self.bot.db.execute("SELECT * FROM submissions WHERE cycle_id = ?", [int(cycle_id)]) as cursor:
             all_submissions = await cursor.fetchall()
 
         with tempfile.TemporaryDirectory() as tempdir:
@@ -104,7 +105,7 @@ class ContestTools(commands.Cog):
                 _, user_id, gamemode, timestamp_submitted, file, status = submission
                 
                 # TODO: JOIN before
-                async with self.bot.db.execute("SELECT nickname FROM participation WHERE cycle_id = ? AND gamemode = ? AND user_id = ?", [cycle_id[0], gamemode, user_id]) as cursor:
+                async with self.bot.db.execute("SELECT nickname FROM participation WHERE cycle_id = ? AND gamemode = ? AND user_id = ?", [cycle_id, gamemode, user_id]) as cursor:
                     username = await cursor.fetchone() or ("")
                 
                 
