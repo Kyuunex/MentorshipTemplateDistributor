@@ -287,12 +287,18 @@ class Participation(commands.Cog):
         detected_gamemode = beatmap_obj.get_mode_str()
 
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
-            cycle_id = await cursor.fetchone()
+            cycle_id_row = await cursor.fetchone()
+
+        if not cycle_id_row:
+            await ctx.send("Bot misconfigured. Cycle ID not set.")
+            return
+
+        cycle_id = cycle_id_row[0]
 
         async with self.bot.db.execute(
                 "SELECT gamemode, timestamp_grace_deadline "
                 "FROM participation WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
-                [int(ctx.author.id), int(cycle_id[0]), detected_gamemode]) as cursor:
+                [int(ctx.author.id), int(cycle_id), detected_gamemode]) as cursor:
             participation_data = await cursor.fetchone()
 
         if not participation_data:
@@ -315,7 +321,7 @@ class Participation(commands.Cog):
 
         async with self.bot.db.execute(
                 "SELECT * FROM submissions WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
-                [int(ctx.author.id), int(cycle_id[0]), gamemode]) as cursor:
+                [int(ctx.author.id), int(cycle_id), gamemode]) as cursor:
             has_already_submitted = await cursor.fetchone()
 
         if has_already_submitted:
@@ -323,18 +329,18 @@ class Participation(commands.Cog):
                 "UPDATE submissions "
                 "SET file = ? AND timestamp_submitted = ? AND status = ? "
                 "WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
-                [contents, timestamp_submitted, status, int(ctx.author.id), int(cycle_id[0]), str(gamemode)])
+                [contents, timestamp_submitted, status, int(ctx.author.id), int(cycle_id), str(gamemode)])
             await ctx.send(f"I have updated your entry. Please note that you can't do this past the hard deadline.")
         else:
             await self.bot.db.execute(
                 "INSERT INTO submissions VALUES (?, ?, ?, ?, ?, ?)",
-                [int(cycle_id[0]), int(ctx.author.id), str(gamemode), timestamp_submitted, contents, status])
+                [int(cycle_id), int(ctx.author.id), str(gamemode), timestamp_submitted, contents, status])
 
         await self.bot.db.execute(
             "UPDATE participation "
             "SET timestamp_submitted = ? AND status = ? "
             "WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
-            [timestamp_submitted, status, int(ctx.author.id), int(cycle_id[0]), gamemode])
+            [timestamp_submitted, status, int(ctx.author.id), int(cycle_id), gamemode])
 
         await self.bot.db.commit()
 
