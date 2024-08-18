@@ -345,11 +345,12 @@ class Participation(commands.Cog):
     @commands.check(permissions.is_not_ignored)
     async def debug_reminder(self, ctx, delay=5, gamemode="osu"):
         async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?", ["cycle_id"]) as cursor:
-            cycle_id = await cursor.fetchone()
+            cycle_id_row = await cursor.fetchone()
+        cycle_id = cycle_id_row[0]
 
         timestamp = int(time.time() + int(delay))
         await self.bot.db.execute("INSERT INTO reminders VALUES (?, ?, ?, ?)",
-                                  [int(cycle_id[0]), int(timestamp), int(ctx.author.id), str(gamemode)])
+                                  [int(cycle_id), int(timestamp), int(ctx.author.id), str(gamemode)])
         await self.bot.db.commit()
 
         self.bot.background_tasks.append(
