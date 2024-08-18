@@ -255,9 +255,6 @@ class Participation(commands.Cog):
     @commands.command(name="submit", brief="Submit entry, MUST attach a .osu file to the message")
     @commands.check(permissions.is_not_ignored)
     async def submit(self, ctx):
-        # TODO: improve a usecase where a user participates in multiple gamemodes within the same cycle.
-        # Right now, participating in 2 or more gamemodes in the same cycle will bork this command.
-
         if ctx.guild:
             await ctx.send("This command can only be used in a DM")
             return
