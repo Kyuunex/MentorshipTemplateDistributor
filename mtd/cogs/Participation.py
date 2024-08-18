@@ -8,13 +8,15 @@ import logging
 
 
 class Participation(commands.Cog):
-    def __init__(self, bot, saved_reminders):
+    def __init__(self, bot, saved_reminder_rows):
         self.bot = bot
 
-        for reminder in saved_reminders:
+        for reminder_row in saved_reminder_rows:
+            cycle_id, timestamp, user_id, gamemode = reminder_row
+
             self.bot.background_tasks.append(
                 self.bot.loop.create_task(
-                    self.reminder_task(int(reminder[1]), int(reminder[2]), str(reminder[3])))
+                    self.reminder_task(int(timestamp), int(user_id), str(gamemode)))
             )
 
     async def eligibility_check(self, user, guild, gamemode):
@@ -495,6 +497,6 @@ async def setup(bot):
     await bot.db.commit()
 
     async with bot.db.execute("SELECT * FROM reminders") as cursor:
-        saved_reminders = await cursor.fetchall()
+        saved_reminder_rows = await cursor.fetchall()
 
-    await bot.add_cog(Participation(bot, saved_reminders))
+    await bot.add_cog(Participation(bot, saved_reminder_rows))
