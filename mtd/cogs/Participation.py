@@ -386,6 +386,9 @@ class Participation(commands.Cog):
             color=0xFFFFFF
         )
         embed.set_image(url="https://i.imgur.com/1kSXSXk.png")
+        embed.add_field(name="Gamemode", value=gamemode)
+        embed.add_field(name="Status", value=status)
+        embed.add_field(name="Submission time", value=f"<t:{str(timestamp_submitted)}:f>")
 
         await ctx.send(f"Submitted!", embed=embed)
 
