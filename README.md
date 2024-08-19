@@ -5,6 +5,8 @@ beatmap template distribution.
 ## Contest Setup
 - Set the server where all participants are in `!set_representing_server 205772326678167552`
 - Set Cycle ID `!set_cycle_id 26`
+- Set late submission rule: `!set_late_submission 1` 
+  - Set 0 for no and 1 for yes.
 - Set contest start time (UTC): `!set_start 2024-06-22 00:00:00`
   - Or Set contest start time (UNIX): `!set_start_unix 1719014400`
 - Set contest end time (UTC): `!set_end 2024-06-23 23:59:59`

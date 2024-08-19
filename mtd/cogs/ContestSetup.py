@@ -241,6 +241,29 @@ class ContestSetup(commands.Cog):
 
         await ctx.send(f"Added duration of {duration} minutes to {gamemode}.")
 
+    @commands.command(name="set_late_submission", brief="Set if we allow late submission")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def set_late_submission(self, ctx, rule):
+        """
+        Set if we allow late submission
+        0 - No
+        1 - Yes
+        """
+
+        if not rule.isdigit():
+            await ctx.send("Set 0 for no, and 1 for yes")
+            return
+
+        await self.bot.db.execute("DELETE FROM contest_config_int WHERE key = ?", ["allow_late_submission"])
+        await self.bot.db.execute("INSERT INTO contest_config_int VALUES (?, ?)", ["allow_late_submission", int(rule)])
+        await self.bot.db.commit()
+
+        if int(rule) == 0:
+            await ctx.send(f"I will not allow late submissions")
+        else:
+            await ctx.send(f"I will allow late submissions")
+
 
 async def setup(bot):
     await bot.db.execute("""

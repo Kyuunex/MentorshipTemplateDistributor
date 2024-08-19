@@ -318,12 +318,39 @@ class Participation(commands.Cog):
         timestamp_submitted = int(time.time())
         # check deadline
 
-        if timestamp_submitted > int(participation_data[1]):
-            await ctx.send(f"Deadline has passed. You can not submit anymore. "
-                           f"You had until <t:{timestamp_grace_deadline}:f> to submit your entry.")
-            return
+        async with self.bot.db.execute("SELECT value FROM contest_config_int WHERE key = ?",
+                                       ["allow_late_submission"]) as cursor:
+            allow_late_submission_row = await cursor.fetchone()
 
+        allow_late_submission = False
         status = "VALID"
+        is_late = False
+        how_late = 0
+
+        if timestamp_submitted > int(timestamp_grace_deadline):
+            # Accept late submissions upto 24 hours but mark them as LATE
+            # 24 hours is chosen just in case someone complains:
+            # "oh no I had a power/internet outage yesterday but pls take it, I still want feedback"
+
+            is_late = True
+            how_late = timestamp_submitted - int(timestamp_grace_deadline)
+            status = "LATE+" + str(how_late)
+
+            if allow_late_submission_row:
+                allow_late_submission = bool(allow_late_submission_row[0])
+
+            print(allow_late_submission)
+            if not allow_late_submission:
+                await ctx.send(f"Deadline has passed. You can not submit anymore. "
+                               f"You had until <t:{timestamp_grace_deadline}:f> to submit your entry. "
+                               f"You are late by {str(how_late)} seconds. ")
+                return
+
+            if timestamp_submitted > int(timestamp_grace_deadline) + 24 * 60 * 60:  # 24 hours
+                await ctx.send(f"Deadline has long passed. You can not submit anymore. "
+                               f"You had until <t:{timestamp_grace_deadline}:f> to submit your entry."
+                               f"You are late by {str(how_late)} seconds. ")
+                return
 
         async with self.bot.db.execute(
                 "SELECT * FROM submissions WHERE user_id = ? AND cycle_id = ? AND gamemode = ?",
@@ -331,6 +358,11 @@ class Participation(commands.Cog):
             has_already_submitted = await cursor.fetchone()
 
         if has_already_submitted:
+            if is_late:
+                await ctx.send(f"Deadline has passed. You can not update your submission anymore. "
+                               f"You had until <t:{timestamp_grace_deadline}:f> to update your entry.")
+                return
+
             await self.bot.db.execute(
                 "UPDATE submissions "
                 "SET file = ?, timestamp_submitted = ?, status = ? "
@@ -356,6 +388,10 @@ class Participation(commands.Cog):
         embed.set_image(url="https://i.imgur.com/1kSXSXk.png")
 
         await ctx.send(f"Submitted!", embed=embed)
+
+        if is_late:
+            await ctx.send(f"Please note that the deadline was passed by {str(how_late)} seconds. "
+                           f"I have marked your submission as **{status}**.")
 
     @commands.command(name="debug_reminder", brief="debug_reminder")
     @commands.check(permissions.is_admin)
