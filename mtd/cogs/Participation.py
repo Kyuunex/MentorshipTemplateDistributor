@@ -461,6 +461,9 @@ class Participation(commands.Cog):
         if attachment.size > 2 * 1024 * 1024:
             return
 
+        if message.content.startswith("!submit"):
+            return
+
         await message.reply("Please use the **!submit** command to submit your entry. "
                             "Type **!submit**, attach your entry and then send.")
 
