@@ -21,7 +21,6 @@ setup(
         'discord.py==2.5.2',
         'psutil',
         'aiosqlite',
-        'python-dateutil',
         'appdirs',
     ],
 )
