@@ -24,4 +24,4 @@ Path(BOT_DATA_DIR).mkdir(parents=True, exist_ok=True)
 Path(BOT_CACHE_DIR).mkdir(parents=True, exist_ok=True)
 Path(BOT_LOG_DIR).mkdir(parents=True, exist_ok=True)
 
-database_file = BOT_DATA_DIR + "/maindb.sqlite3"
+database_file = os.path.join(BOT_DATA_DIR, "maindb.sqlite3")
