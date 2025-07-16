@@ -18,7 +18,7 @@ setup(
     author_email='kyuunex@protonmail.ch',
     url='https://github.com/Kyuunex/MTD',
     install_requires=[
-        'discord.py[voice]==2.4.0',
+        'discord.py==2.5.2',
         'psutil',
         'aiosqlite',
         'feedparser',
