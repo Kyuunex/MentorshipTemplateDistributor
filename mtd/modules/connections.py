@@ -10,5 +10,5 @@ else:
             bot_token = token_file.read().strip()
     except FileNotFoundError as e:
         print("i need a bot token. either set MTD_TOKEN environment variable")
-        print("or put it in token.txt in my AppData/.config folder")
+        print("or put it in token.txt which i expect to be here: ", token_file_full_path)
         raise SystemExit
