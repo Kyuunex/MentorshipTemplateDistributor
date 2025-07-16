@@ -1,6 +1,5 @@
-# MTD
-MTD (Mentorship Template Distributor) is a Discord bot that automates the Mentorship Discord server speedmapping contest
-beatmap template distribution.
+# Mentorship Template Distributor
+This is just a Discord bot that automates the speedmapping contest in the osu! Mentorship Discord server, to some extent.
 
 ## Contest Setup
 - Set the server where all participants are in `!set_representing_server 205772326678167552`
@@ -30,7 +29,7 @@ beatmap template distribution.
     ```
     - Note that few former mentees are judges and can not participate, so this eligibility test will work in combination with the previous command.
 - Set Attachment: `!set_attachment https://blabla`
-- Set Instructions: `!set_instructions Here is beatmap template for the Speedmapping contest. After you are done, use the !submit command, attach a file and send it this bot. Since this is the first time we are using a bot, anything could go wrong, so send a copy to Sylvarus A.K.A. Dignan after this bot just to be safe.`
+- Set Instructions: `!set_instructions Here is the beatmap template for the Speedmapping Contest. After you are done, use the !submit command, attach a file and send it to this bot. Since we are using a bot, anything could go wrong, so send a copy to Dignan as well just to be safe. Good luck!`
 
 ## DM monitoring (Code stolen from Momiji lol)
 - Message a member `!message_member`
@@ -63,6 +62,6 @@ beatmap template distribution.
       }
     ]
     ```
-    - status: DNF - did not finish, DNS - did not submit, DE - deadline exceeded, VALID - A valid entry.
+    - status: DNS - did not submit, LATE - deadline exceeded, VALID - A valid entry.
 - Reset participant: `!reset_participant discord_id`. In case something breaks, they get another go.
 - Export submissions (in a zip download): `!export_submissions`

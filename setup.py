@@ -13,7 +13,7 @@ setup(
         'mtd.reusables'
     ],
     version=VERSION,
-    description='A Discord bot that automates the Mentorship Discord server speedmapping contest beatmap template distribution.',
+    description='osu! Mentorship contest bot',
     author='Kyuunex',
     author_email='kyuunex@protonmail.ch',
     url='https://github.com/Kyuunex/MTD',
