@@ -16,7 +16,7 @@ setup(
     description='osu! Mentorship contest bot',
     author='Kyuunex',
     author_email='kyuunex@protonmail.ch',
-    url='https://github.com/Kyuunex/MTD',
+    url='https://github.com/Kyuunex/MentorshipTemplateDistributor',
     install_requires=[
         'discord.py==2.5.2',
         'psutil',

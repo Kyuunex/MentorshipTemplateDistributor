@@ -27,7 +27,7 @@ Open the Terminal (PowerShell or CMD), paste that in and press enter.
 
 To install the latest unstable version, type the following in the Terminal instead 
 ```bash
-python3 -m pip install git+https://github.com/Kyuunex/MTD.git@master --upgrade
+python3 -m pip install git+https://github.com/Kyuunex/MentorshipTemplateDistributor.git@master --upgrade
 ```
 
 To run the bot, type `python3 -m mtd` in the Terminal
