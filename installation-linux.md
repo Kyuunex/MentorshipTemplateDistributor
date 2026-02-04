@@ -27,8 +27,8 @@ supply them via environment variables. if you do both, env vars will be used
 ```bash
 git clone https://github.com/Kyuunex/MentorshipTemplateDistributor.git -b master MTD
 cd MTD
-python -m venv ./venv
-source ./venv/bin/activate
+python -m venv ./.venv
+source ./.venv/bin/activate
 pip install -r requirements.txt
 ./run_mtd.py
 ```
@@ -37,8 +37,8 @@ To install a modified version of the bot for production use, type `pip3 install 
 ### Installation for production use
 ```sh
 mkdir -p $HOME/.local/share/MTD
-python3 -m venv $HOME/.local/share/MTD/venv
-source $HOME/.local/share/MTD/venv/bin/activate
+python3 -m venv $HOME/.local/share/MTD/.venv
+source $HOME/.local/share/MTD/.venv/bin/activate
 python3 -m pip install git+https://github.com/Kyuunex/MentorshipTemplateDistributor.git@master --upgrade  # You can replace this with a release if you want
 ```
 Repeat the commands 3 and 4 for upgrading.
@@ -52,7 +52,7 @@ echo "your_bot_token_goes_here" | tee $HOME/.local/share/MTD/token.txt
 ### Configuring the bot as a systemd service
 The purpose of this is to make the bot start automatically on boot, useful for example after a power outage.  
 
-Create the following file: `/lib/systemd/system/mtd.service`  
+Create the following file: `/etc/systemd/system/mtd.service`  
 Inside it, put the following:
 ```ini
 [Unit]
@@ -65,7 +65,7 @@ Restart=always
 RestartSec=5
 User=pi
 Type=simple
-ExecStart=/home/pi/.local/share/MTD/venv/bin/python3 -m mtd
+ExecStart=/home/pi/.local/share/MTD/.venv/bin/python3 -m mtd
 
 [Install]
 WantedBy=multi-user.target
