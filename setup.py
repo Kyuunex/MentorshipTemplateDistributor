@@ -18,7 +18,7 @@ setup(
     author_email='kyuunex@protonmail.ch',
     url='https://github.com/Kyuunex/MentorshipTemplateDistributor',
     install_requires=[
-        'discord.py==2.6.3',
+        'discord.py==2.6.4',
         'psutil',
         'aiosqlite',
         'appdirs',
