@@ -1,4 +1,4 @@
-VERSION = "1.2.1"
+VERSION = "2026.2.4"
 
 CONTRIBUTORS = [
     {
