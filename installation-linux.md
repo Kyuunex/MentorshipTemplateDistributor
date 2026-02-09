@@ -65,7 +65,7 @@ Restart=always
 RestartSec=5
 User=pi
 Type=simple
-ExecStart=/home/pi/.local/share/MTD/.venv/bin/python3 -m mtd
+ExecStart=/home/pi/.local/share/MTD/.venv/bin/python3 -u -m mtd
 
 [Install]
 WantedBy=multi-user.target
